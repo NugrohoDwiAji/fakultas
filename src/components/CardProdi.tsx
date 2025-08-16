@@ -3,15 +3,16 @@ import { ChevronDown } from "lucide-react";
 
 type Props = {
     title: string;
-    children:React.ReactNode
+    children:React.ReactNode;
+    isOpen : boolean;
+    onClick: () => void
 };  
 
-const CardProdi = ({title, children}: Props) => {
-  const [isOpen, setIsOpen] = useState(false);
+const CardProdi = ({title, children, isOpen, onClick}: Props) => {
   return (
     <div className="bg-white max-w-xs md:max-w-xl lg:max-w-3xl relative shadow-2xl h-fit rounded-lg border-purple-300 border-2 border-collapse w-fit lg:min-w-3xl min-w-xs">
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={onClick}
         className="cursor-pointer w-full text-start font-bold text-lg md:text-xl  text-gray-900 ring-2 ring-purple-500 rounded-lg px-10 py-2"
       >
         <h1>
@@ -33,7 +34,7 @@ const CardProdi = ({title, children}: Props) => {
       </div>
 
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={onClick}
         className={`absolute right-4 top-2  cursor-pointer transform transition-all duration-300  ${
           isOpen ? "rotate-180 text-gray-600" : " text-purple-600"
         }`}

@@ -10,18 +10,18 @@ export function middleware(request: NextRequest) {
 
   
   // Cek apakah route dimulai dengan /admin
-  if (pathname.startsWith('/admin')) {
+  // if (pathname.startsWith('/admin')) {
 
     
-    console.log('Token found:', !!token) // Debug log
+  //   console.log('Token found:', !!token) // Debug log
     
-    // Jika tidak ada token, redirect ke login
-    if (!token) {
-      console.log('No token, redirecting to login') // Debug log
-      const loginUrl = new URL('/login', request.url)
-      return NextResponse.redirect(loginUrl)
-    }
-  }
+  //   // Jika tidak ada token, redirect ke login
+  //   if (!token) {
+  //     console.log('No token, redirecting to login') // Debug log
+  //     const loginUrl = new URL('/login', request.url)
+  //     return NextResponse.redirect(loginUrl)
+  //   }
+  // }
   
   return NextResponse.next()
 }

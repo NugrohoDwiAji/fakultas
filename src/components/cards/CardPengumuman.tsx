@@ -11,18 +11,19 @@ type Props = {
 export default function CardPengumuman({ title, file_path, uploadat}: Props) {
     
   useEffect(() => {
-    AOS.init({
-      duration: 3000, // Durasi animasi dalam milidetik
-      once: false, // Animasi hanya berjalan sekali
-      easing: "ease-in-out", // Efek transisi animasi
-    });
+    // AOS.init({
+    //   duration: 3000, // Durasi animasi dalam milidetik
+    //   once: false, // Animasi hanya berjalan sekali
+    //   easing: "ease-in-out", // Efek transisi animasi
+    // });
   }, []);
 
   return (
-    <div  data-aos="flip-left"
-     data-aos-easing="ease-out-cubic"
-     data-aos-duration="2000" 
-     className="bg-white text-gray-800 h-fit fit md:w-80 shadow-2xl rounded-lg ">
+    <div  
+    // data-aos="flip-left"
+    //  data-aos-easing="ease-out-cubic"
+    //  data-aos-duration="2000" 
+     className="bg-white text-gray-800 h-fit fit md:w-72 shadow-2xl rounded-lg ">
       <h1 className="p-3 text-lg text-center font-bold">{title}</h1>
       <hr className="border-t-2 border-gray-800 w-full" />
       <div className="flex gap-2 justify-center items-center h-1/2 px-4 py-2">

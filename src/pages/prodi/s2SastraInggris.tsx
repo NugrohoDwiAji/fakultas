@@ -3,6 +3,7 @@ import axios from "axios";
 import CardProdi from "@/components/CardProdi";
 import TabelKurikulum from "@/components/TabelKurikulum";
 import CardKurikulum from "@/components/CardKurikulum";
+import { set } from "date-fns";
 
 interface Prodi {
   id: string;
@@ -29,7 +30,8 @@ interface Kurikulum {
 export default function S2SastraInggris() {
   const [prodi, setProdi] = useState<Prodi[]>([]);
   const [kurikulum, setkurikulum] = useState<Kurikulum[]>([]);
-  const [isOpen, setIsOpen] = useState(false);
+  const [kurikulumActiveId, setKurikulumActiveId] = useState<Number | null>(null);
+  const [prodiActiveId, setProdiActiveId] = useState<Number>(1);
   const handleGetProdi = async () => {
     try {
       const result = await axios.get("/api/prodi");
@@ -95,11 +97,11 @@ handleGetKurikulum();
       </div>
       {/* Main */}
       <main className="px-5 flex flex-col my-10 md:my-12 md:max-w-xl lg:max-w-4xl m-auto gap-2">
-        <CardProdi title="Visi">
+        <CardProdi key={1} title="Visi" isOpen={prodiActiveId === 1 ? true : false} onClick={() => setProdiActiveId(1)}>
           {prodi.find((item) => item.nama === "S2 Sastra Inggris")?.visi}
         </CardProdi>
 
-        <CardProdi title="Misi">
+        <CardProdi key={2} title="Misi" isOpen={prodiActiveId === 2 ? true : false} onClick={() => setProdiActiveId(2)}>
           <p className="space-y-2 text-lg text-justify indent-10 mb-5">
             {formattedContent[0]}
           </p>
@@ -109,12 +111,12 @@ handleGetKurikulum();
             ))}
           </ul>
         </CardProdi>
-        <CardProdi title="Profil Lulusan">
+        <CardProdi key={3} title="Profil Lulusan" isOpen={prodiActiveId === 3 ? true : false} onClick={() => setProdiActiveId(3)}>
           <div></div>
         </CardProdi>
-        <CardProdi title="Kurikulum">
+        <CardProdi key={4} title="Kurikulum" isOpen={prodiActiveId === 4 ? true : false} onClick={() => setProdiActiveId(4)}>
            {kurikulum.map((item, index) => (
-                      <CardKurikulum semester={item.semester} key={index}>
+                      <CardKurikulum semester={item.semester} key={index} onClick={()=>setKurikulumActiveId(index)} isOpen={kurikulumActiveId === index ? true : false}>
                         {item.data.map((data, index) => (
                           <TabelKurikulum
                             id_matkul={data.id_matakuliah}

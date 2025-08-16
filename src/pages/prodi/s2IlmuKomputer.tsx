@@ -30,7 +30,9 @@ interface Kurikulum {
 export default function S2IlmuKomputer() {
   const [prodi, setProdi] = useState<Prodi[]>([]);
   const [kurikulum, setkurikulum] = useState<Kurikulum[]>([]);
-  const [isOpen, setIsOpen] = useState(false);
+    const [kurikulumActiveId, setKurikulumActiveId] = useState<Number | null>(null);
+    const [prodiActiveId, setProdiActiveId] = useState<Number>(1);
+  
   const handleGetProdi = async () => {
     try {
       const result = await axios.get("/api/prodi");
@@ -92,11 +94,11 @@ export default function S2IlmuKomputer() {
       </div>
       {/* Main */}
       <main className="px-5 flex flex-col my-10 md:my-12 md:max-w-xl lg:max-w-4xl m-auto gap-2">
-        <CardProdi title="Visi">
+        <CardProdi title="Visi" onClick={()=>setProdiActiveId(1)} isOpen={prodiActiveId === 1 ? true : false}>
           {prodi?.find((item) => item.nama === "S2 Ilmu Komputer")?.visi}
         </CardProdi>
 
-        <CardProdi title="Misi">
+        <CardProdi title="Misi" isOpen={prodiActiveId === 2 ? true : false} onClick={()=>setProdiActiveId(2)}>
           <p className="space-y-2 text-lg text-justify indent-10 mb-5">
             {formattedContent[0]}
           </p>
@@ -106,12 +108,12 @@ export default function S2IlmuKomputer() {
             ))}
           </ul>
         </CardProdi>
-        <CardProdi title="Profil Lulusan">
+        <CardProdi title="Profil Lulusan" isOpen={prodiActiveId === 3 ? true : false} onClick={()=>setProdiActiveId(3)}>
           <div></div>
         </CardProdi>
-        <CardProdi title="Kurikulum">
+        <CardProdi title="Kurikulum" isOpen={prodiActiveId === 4 ? true : false} onClick={()=>setProdiActiveId(4)}>
           {kurikulum.map((item, index) => (
-            <CardKurikulum semester={item.semester} key={index}>
+            <CardKurikulum semester={item.semester} key={index} onClick={()=>setKurikulumActiveId(index)} isOpen={kurikulumActiveId === index ? true : false}>
               {item.data.map((data, index) => (
                 <TabelKurikulum
                   id_matkul={data.id_matakuliah}

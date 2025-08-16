@@ -237,10 +237,11 @@ export default function Home() {
           Berita
         </h1>
         <hr className="border-t-[3px] border-purple-900 w-[20%] md:w-[15%] lg:w-[6%]  mb-5" />
-        <div className="w-full">
+        <div className="w-full ">
+        <center>
           <Carausel>
             {dataBerita.map((item, index) => (
-              <div key={index} className="my-4">
+              <div key={index} className="my-4 w-full ">
                 <CardBerita
                   key={index}
                   img={item.filepath}
@@ -252,6 +253,7 @@ export default function Home() {
               </div>
             ))}
           </Carausel>
+          </center>
           <div className="mt-10 w-full flex justify-center">
             <ButtonPrimary
               ClassName="hover:bg-purple-900 m-auto hover:text-white text-purple-900 bg-white border-2 border-purple-900 font-semibold ease-in-out duration-300 transition-all"
@@ -272,16 +274,19 @@ export default function Home() {
             </h1>
             <hr className="border-t-[3px] border-white w-[50%] md:w-[30%]  mt-5" />
             <div className="w-screen mt-16">
+              <center>
+
               <Carausel>
                 {dataPengumuman.map((item, index) => (
                   <CardPengumuman
-                    key={index}
-                    file_path={item.file_path}
-                    title={item.title}
-                    uploadat={item.uploadat}
+                  key={index}
+                  file_path={item.file_path}
+                  title={item.title}
+                  uploadat={item.uploadat}
                   />
                 ))}
               </Carausel>
+                </center>
                <div className="mt-10 w-full flex justify-center">
             <ButtonPrimary
               ClassName="hover:bg-purple-900 m-auto hover:text-white text-purple-900 bg-white border-2 border-purple-900 font-semibold ease-in-out duration-300 transition-all"

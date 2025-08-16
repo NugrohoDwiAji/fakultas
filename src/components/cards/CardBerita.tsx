@@ -23,14 +23,14 @@ const truncateText = (text: string, maxLength: number) => {
   const router = useRouter();
 
     useEffect(() => {
-    AOS.init({
-      duration: 500, // Durasi animasi dalam milidetik
-      once: false, // Animasi hanya berjalan sekali
-      easing: "ease-in-out", // Efek transisi animasi
-    });
+    // AOS.init({
+    //   duration: 500, // Durasi animasi dalam milidetik
+    //   once: false, // Animasi hanya berjalan sekali
+    //   easing: "ease-in-out", // Efek transisi animasi
+    // });
   }, []);
   return (
-    <div data-aos="zoom-in-up" className="h-[30rem] w-72 md:w-80 shadow-xl shadow-gray-300 rounded-xl p-3 flex flex-col justify-between gap-4 bg-white">
+    <div data-aos="zoom-in-up" className="h-[30rem] text-start w-72 md:w-72 shadow-xl shadow-gray-300 rounded-xl p-3 flex flex-col justify-between gap-4 bg-white">
       <img
         src={img}
         alt="notfound"

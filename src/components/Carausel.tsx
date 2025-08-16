@@ -68,6 +68,7 @@ export default function Carousel({children}:Props):React.JSX.Element {
           slidesToShow: 2,
           slidesToScroll: 1,
           centerMode: true,
+          centerPaddig: "0px"
         }
       },
       {
@@ -76,13 +77,15 @@ export default function Carousel({children}:Props):React.JSX.Element {
           slidesToShow: 3,
           slidesToScroll: 1,
           centerMode: true,
+          centerPaddig: "0px"
+
         }
       }
     ]
   };
 
   return (
-    <div className="relative px-4 md:px-8 lg:px-12 xl:px-20 mx-auto">
+    <div className="relative m-auto">
       <Slider {...settings}>
         {children}
       </Slider>

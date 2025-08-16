@@ -33,11 +33,15 @@ const handleDeleteMethod = async (
 };
 
 const handleGetById = async (req: NextApiRequest, res: NextApiResponse) => {
-  const { id } = req.query;
+  const { name } = req.query;
   try {
-    const result = await prisma.berkas.findUnique({
-      where: { id: id as string },
-    });
+    const result = await prisma.berkas.findMany({
+      where :{
+        title :{
+          contains : name as string,
+        }
+      }
+    })
     res.status(200).json(result);
   } catch (error) {
     res.status(500).json({ error: "Error fetching content" });
@@ -111,8 +115,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "GET") {
     return handleGetById(req, res);
   }
-  if (req.method === "PUT") 
-    return handlePutMethod(req, res);
+  if (req.method === "PUT") return handlePutMethod(req, res);
   else {
     res.status(405).json({ message: "Method not allowed" });
   }

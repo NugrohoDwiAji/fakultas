@@ -1,22 +1,25 @@
 import React from "react";
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
+import { on } from "events";
 
 interface Props {
   semester: string;
   children: React.ReactNode;
+  isOpen : boolean;
+  onClick: () => void ;
 }
-export default function CardKurikulum({ children, semester }: Props) {
-  const [isOpen, setIsOpen] = useState(false);
+export default function CardKurikulum({ children, semester, isOpen, onClick }: Props) {
+  console.log("ini is open",isOpen)
   return (
     <div className={`bg-white max-w-sm md:max-w-xl lg:max-w-3xl relative shadow-2xl  rounded-lg ${isOpen?" border-2 border-collapse  border-purple-300":""} mb-5 transform `}>
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={onClick}
         className="p-2 cursor-pointer outline-none text-lg font-bold mb-1 w-full rounded-lg ring-2 ring-purple-500 flex items-center justify-between"
       >
         {"Semester " + semester}
         <button
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={onClick}
           className={`absolute right-4 top-2  cursor-pointer transform transition-all duration-300  ${
             isOpen ? "rotate-180 text-gray-600" : " text-purple-600"
           }`}
