@@ -75,7 +75,7 @@ export default function Unduhan() {
           alt=""
           className="w-full bg-cover h-full"
         />
-        <div className="absolute top-0 left-0 right-0 bottom-0 flex flex-col justify-center p-10 -mt-9 md:-mt-20 lg:-mt-36">
+        <div className="absolute top-0 left-0 right-0 bottom-0 flex flex-col justify-center p-3 md:p-10 -mt-9 md:-mt-20 lg:-mt-36">
           <h1 className="text-white text-3xl md:text-5xl lg:text-6xl font-bold">
             Berkas Unduhan
           </h1>
@@ -91,8 +91,8 @@ export default function Unduhan() {
         <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold">Berkas</h1>
       </div>
       {/* Main */}
-      <main className="flex flex-col items-center min-h-64 px-2">
-        <div className="w-[900px]">
+      <main className="flex flex-col items-center min-h-60 px-2">
+        <div className="lg:w-[900px] md:w-[650px] w-80">
           {/* stats */}
           <div className="border border-gray-200 w-full h-fit rounded-lg mb-5 p-2 ">
             <div className="flex gap-5 items-center pb-2">

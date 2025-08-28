@@ -240,7 +240,7 @@ export default function Home() {
         <div className="w-full ">
         <center>
           <Carausel>
-            {dataBerita.map((item, index) => (
+            {dataBerita.slice(0, 6).map((item, index) => (
               <div key={index} className="my-4 w-full ">
                 <CardBerita
                   key={index}

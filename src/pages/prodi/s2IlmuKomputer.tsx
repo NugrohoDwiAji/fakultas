@@ -77,7 +77,7 @@ export default function S2IlmuKomputer() {
           alt=""
           className="w-full bg-cover h-full"
         />
-        <div className="absolute top-0 left-0 right-0 bottom-0 flex flex-col justify-center p-10 -mt-9 md:-mt-20 lg:-mt-36">
+        <div className="absolute top-0 left-0 right-0 bottom-0 flex flex-col justify-center p-3 md:p-10 -mt-9 md:-mt-20 lg:-mt-36">
           <h1 className="text-white text-3xl md:text-5xl lg:text-6xl font-bold">
             S2 Ilmu Komputer
           </h1>
