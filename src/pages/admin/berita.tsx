@@ -158,7 +158,7 @@ export default function Berita() {
         </thead>
         <tbody>
           {dataBerita.map((item, index) => (
-            <tr className="border-b border-x border-gray-300">
+            <tr key={index} className="border-b border-x border-gray-300">
               <td className="py-2 text-center bg-purple-100">{index + 1}</td>
               <td className="py-2 px-2 border-x border-gray-300 bg-purple-100">
                 {item.title}

@@ -3,6 +3,7 @@ import Header from "../Header";
 import { useState, useEffect } from "react";
 import ContactHeader from "../ContactHeader";
 import Footer from "../Footer";
+import SnowFall from "react-snowfall";
 
 type Props = {
   children: ReactNode;
@@ -36,6 +37,7 @@ export default function MainLayout({
 
   return (
     <div>
+      <SnowFall />
       {!hideContactHeader && <ContactHeader isScroll={scrolled} />}
       {!hideHeader && <Header isScroll={scrolled} />}
 

@@ -136,6 +136,7 @@ export default function Unduhan() {
             <tbody>
               {currentData.slice(0, viewPerPage).map((item, index) => (
                 <tr
+                key={item.id}
                   className={`${
                     index % 2 === 0 ? "bg-white" : "bg-purple-300 bg-opacity-50"
                   }`}
