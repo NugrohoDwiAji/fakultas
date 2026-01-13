@@ -49,13 +49,11 @@ const handlePostMethode = async (req: NextApiRequest, res: NextApiResponse) => {
     const namatmp = fields.nama?.toString();
     const nama = namatmp || "utitled";
     const nik = fields.nik?.toString() || "description";
-    const jenis_dosen = fields.jenis_dosen?.toString() || "Dosen Ilkom";
 
-    const saved = await prisma.dosen.create({
+    const saved = await prisma.staf.create({
       data: {
         nama: nama,
-        nik: nik,
-        jenis_dosen: jenis_dosen,
+        nitk: nik,
         foto: filePath,
       },
     });
@@ -72,7 +70,7 @@ const handleDeleteMethod = async (
 ) => {
   const { id } = req.query;
 
-  const existing = await prisma.dosen.findUnique({
+  const existing = await prisma.staf.findUnique({
     where: { id: id as string },
   });
   if (existing?.foto) {
@@ -82,7 +80,7 @@ const handleDeleteMethod = async (
     }
   }
   try {
-    const result = await prisma.dosen.delete({
+    const result = await prisma.staf.delete({
       where: { id: id as string },
     });
     res.status(200).json(result);
@@ -93,7 +91,8 @@ const handleDeleteMethod = async (
 
 const handleGetMethod = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
-    const result = await prisma.dosen.findMany();
+    const result = await prisma.staf.findMany();
+    console.log(result)
     res.status(200).json(result);
   } catch (error) {
     console.error("Error fetching content:", error);

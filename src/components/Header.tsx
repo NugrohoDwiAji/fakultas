@@ -1,4 +1,4 @@
-import React, { use } from "react";
+import React from "react";
 import { useState, useEffect } from "react";
 import { AlignRight, ArrowRightFromLine } from "lucide-react";
 import Link from "next/link";
@@ -87,14 +87,17 @@ export default function Header({ isScroll }: Props) {
           name: "Struktur Organisasi",
           url: "/strukturorganisasi",
         },
+        {
+          id: 23,
+          name: "Dosen",
+          url: "/dosen",
+        },
+        {
+          id: 24,
+          name: "Staf",
+          url: "/staf",
+        },
       ],
-    },
-    {
-      id: 3,
-      name: "Dosen",
-      url: "/dosen",
-      action: () => {},
-      subMenu: [],
     },
     {
       id: 4,

@@ -82,6 +82,15 @@ model dosen{
   create_at DateTime @default(now())
 }
 
+model staf{
+  id String @id @default(uuid())
+  nama String
+  nitk String
+  foto String
+  create_at DateTime @default(now())
+}
+
+
 model faq{
   id String @id @default(uuid())
   question String @db.LongText

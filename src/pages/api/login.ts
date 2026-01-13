@@ -18,9 +18,12 @@ export default async function handler(
 
   const jwtToken = jwt.sign(
     {
+      id: userData.id,
       username: username,
     },
-    "fakultas2025"
+    process.env.JWT_SECRET!,
+    {
+      expiresIn: "1d",}
   );
 
   const passwordalidate = await bcrypt.compare(password, userData.password);
@@ -28,7 +31,7 @@ export default async function handler(
     return res.status(400).json({ message: "Password salah" });
   res.setHeader(
     `Set-Cookie`,
-    `jwt=${jwtToken}; Path=/; SameSite=Lax; HttpOnly;  Max-Age=${60 * 60}`
+    `jwt=${jwtToken}; Path=/; SameSite=strict ; HttpOnly;  Max-Age=${60 * 60}`
   );
 
   res.status(200).json({

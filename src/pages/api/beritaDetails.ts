@@ -9,13 +9,13 @@ const handleGetById = async (req: NextApiRequest, res: NextApiResponse) => {
     });
     res.status(200).json(result);
   } catch (error) {
-    res.status(500).json({ error: "Error fetching content" });
+    res.status(500).json({ massage: "Error fetching content", error });
   }
 };
 
-const handleUpdate = (req: NextApiRequest, res: NextApiResponse) => {
+// const handleUpdate = (req: NextApiRequest, res: NextApiResponse) => {
     
-};
+// };
 
 const handleDeleteMethod = async (
   req: NextApiRequest,
@@ -28,16 +28,13 @@ const handleDeleteMethod = async (
     });
     res.status(200).json({massege: "berita berhasil dihapus", result});
   } catch (error) {
-    res.status(500).json({ error: "Error Deleting content" });
+    res.status(500).json({ massage: "Error Deleting content", error });
   }
 };
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "GET") {
     return handleGetById(req, res);
-  }
-  if (req.method === "PUT") {
-    return handleUpdate(req, res);
   }if (req.method === "DELETE"){
     return handleDeleteMethod(req, res);
   } else {

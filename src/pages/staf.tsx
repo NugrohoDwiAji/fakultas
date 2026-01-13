@@ -11,14 +11,13 @@ type IdentitasType = {
 type Data = {
   id: string;
   nama: string;
-  nik: string;
+  nitk: string;
   foto: string;
   uploadat: string;
 };
 
-export default function Dosen() {
+export default function Staf() {
   const [identitas, setIdentitas] = useState<IdentitasType[] | null>([]);
-  const [dosenSasing, setDosenSasing] = useState<Data[]>([]);
   const [dosenIlkom, setDosenIlkom] = useState<Data[]>([]);
 
   const handleGetIdentitas = async () => {
@@ -31,13 +30,9 @@ export default function Dosen() {
   };
 
   const handleGetByHomebase = async () => {
-    const ilkom = "S2 Ilmu Komputer";
-    const sasing = "S2 Sastra Inggris";
     try {
-      const result = await axios.get(`/api/dosenDetails?homebase=${ilkom}`);
+      const result = await axios.get(`/api/staf`);
       setDosenIlkom(result.data);
-      const result2 = await axios.get(`/api/dosenDetails?homebase=${sasing}`);
-      setDosenSasing(result2.data);
     } catch (error) {
       console.log(error);
     }
@@ -61,7 +56,7 @@ export default function Dosen() {
             Daftar Dosen 
           </h1>
           <h2 className="text-white mt-3">
-            Daftar Dosen
+            Daftar Staf
             {identitas?.find((item) => item.name === "Nama Fakultas")?.value}{" "}
             Universitas Bumigora
           </h2>
@@ -69,28 +64,17 @@ export default function Dosen() {
       </div>
 
       <div className="text-purple-900 text-center mt-10 ">
-        <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold">Dosen</h1>
+        <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold">Staf</h1>
       </div>
       {/* Main */}
       <main className="flex flex-col  items-center min-h-64 py-10 px-5 lg:px-10">
-              <h1 className="text-lg md:text-xl lg:text-2xl font-bold text-purple-900 mb-5 border-2 border-dashed px-2 py-1 rounded-lg">S2 Ilmu Komputer</h1>
+
         <div className="flex gap-5 flex-wrap justify-center mb-10">
         {dosenIlkom.map((item) => (
           <CardDosen
             key={item.id}
             nama={item.nama}
-            nik={item.nik}
-            foto={item.foto}
-          />
-        ))}
-        </div>
-        <h1 className="text-lg md:text-xl lg:text-2xl font-bold text-purple-900 mb-5 border-2 px-2 py-1 border-dashed rounded-lg">S2 Sastra Inggris</h1>
-        <div className="flex gap-5 flex-wrap justify-center">
-        {dosenSasing.map((item) => (
-          <CardDosen
-            key={item.id}
-            nama={item.nama}
-            nik={item.nik}
+            nik={item.nitk}
             foto={item.foto}
           />
         ))}

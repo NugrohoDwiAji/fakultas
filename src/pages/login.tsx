@@ -23,7 +23,7 @@ export default function Login() {
 
 const handleLogin = async() => {
   try {
-    const response = await axios.post('/login', kredensil);
+     await axios.post('/login', kredensil);
 
       window.location.href = '/admin/dashboard';
    

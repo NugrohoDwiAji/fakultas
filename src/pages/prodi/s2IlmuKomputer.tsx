@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import CardProdi from "@/components/CardProdi";
-import { ChevronDown } from "lucide-react";
 import CardKurikulum from "@/components/CardKurikulum";
 import TabelKurikulum from "@/components/TabelKurikulum";
-import { da } from "date-fns/locale";
 
 interface Prodi {
   id: string;
@@ -30,8 +28,8 @@ interface Kurikulum {
 export default function S2IlmuKomputer() {
   const [prodi, setProdi] = useState<Prodi[]>([]);
   const [kurikulum, setkurikulum] = useState<Kurikulum[]>([]);
-    const [kurikulumActiveId, setKurikulumActiveId] = useState<Number | null>(null);
-    const [prodiActiveId, setProdiActiveId] = useState<Number>(1);
+    const [kurikulumActiveId, setKurikulumActiveId] = useState<number | null>(null);
+    const [prodiActiveId, setProdiActiveId] = useState<number>(1);
   
   const handleGetProdi = async () => {
     try {

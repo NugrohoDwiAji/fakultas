@@ -8,26 +8,23 @@ import SuccessAlert from "@/components/cards/AlertSucces";
 type DataDosen = {
   nama: string;
   nik: string;
-  jenis_dosen: string;
 };
 
 type Data = {
   id: string;
   nama: string;
-  nik: string;
-  jenis_dosen: string;
+  nitk: string;
   foto: string;
   uploadat: string;
 };
 
-export default function Dosen() {
+export default function Staf() {
   const [isInput, setIsInput] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [showAlert, setShowAlert] = useState(false);
   const [dataDosen, setDataDosen] = useState<DataDosen>({
     nama: "",
     nik: "",
-    jenis_dosen: "",
   });
   const [datas, setDatas] = useState<Data[]>([]);
 
@@ -35,11 +32,10 @@ export default function Dosen() {
     const data = {
       nama: dataDosen.nama,
       nik: dataDosen.nik,
-      jenis_dosen: dataDosen.jenis_dosen,
       file: file,
     };
     try {
-      await axios.post("/api/dosen", data, {
+      await axios.post("/api/staf", data, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -53,7 +49,7 @@ export default function Dosen() {
 
   const handleDelete = async (id: string) => {
     try {
-      await axios.delete(`/api/dosen?id=${id}`);
+      await axios.delete(`/api/staf?id=${id}`);
       document.location.reload();
     } catch (error) {
       console.log(error);
@@ -62,7 +58,7 @@ export default function Dosen() {
 
   const handleGet = async () => {
     try {
-      const result = await axios.get("/api/dosen");
+      const result = await axios.get("/api/staf");
       setDatas(result.data);
     } catch (error) {
       console.log(error);
@@ -79,7 +75,7 @@ export default function Dosen() {
 
   return (
     <AdminLayout>
-      <h1 className="text-4xl text-gray-600 ">Input Dosen</h1>
+      <h1 className="text-4xl text-gray-600 ">Input Staf</h1>
       <div className="flex gap-5">
         <ButtonPrimary
           ClassName="text-white bg-purple-600 hover:bg-white hover:text-purple-600 hover:border-2 hover:border-purple-600 ease-in-out duration-300 transition-all mt-5"
@@ -101,7 +97,7 @@ export default function Dosen() {
           <FileDropzone onDrop={handleFileDrop} />
           <div className="flex items-center justify-center gap-20 w-full mt-5">
             <div className="flex items-center gap-5 ">
-              <label htmlFor="">Nama Dosen</label>
+              <label htmlFor="">Nama Staf</label>
               <input
                 type="text"
                 name=""
@@ -114,7 +110,7 @@ export default function Dosen() {
             </div>
 
             <div className="flex items-center gap-5 ">
-              <label htmlFor="">NIK</label>
+              <label htmlFor="">NITK</label>
               <input
                 type="text"
                 onChange={(e) =>
@@ -122,41 +118,6 @@ export default function Dosen() {
                 }
                 className="bg-white p-2 focus:outline-purple-600 rounded-lg outline-purple-100 outline-2"
               />
-            </div>
-            <div className="flex flex-col gap-5">
-              <h1>Home Base Dosen</h1>
-              <div className="flex gap-5">
-                <div>
-                  <input
-                    onChange={(e) =>
-                      setDataDosen({
-                        ...dataDosen,
-                        jenis_dosen: e.target.value,
-                      })
-                    }
-                    type="radio"
-                    name="jenisdosen"
-                    id="dosenilkom"
-                    value={"S2 Ilmu Komputer"}
-                  />
-                  <label htmlFor="dosenilkom">S2 Ilmu Komputer</label>
-                </div>
-                <div>
-                  <input
-                    onChange={(e) =>
-                      setDataDosen({
-                        ...dataDosen,
-                        jenis_dosen: e.target.value,
-                      })
-                    }
-                    type="radio"
-                    name="jenisdosen"
-                    id="dosensastrainggris"
-                    value={"S2 Sastra Inggris"}
-                  />
-                  <label htmlFor="dosensastrainggris">S2 Sastra Inggris</label>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -169,14 +130,12 @@ export default function Dosen() {
                 No
               </th>
               <th className=" lg:w-60 bg-purple-600 border-x border-gray-300 ">
-                Nama Dosen
+                Nama Staf
               </th>
               <th className=" lg:w-2xl bg-purple-600 border-x border-gray-300 ">
                 Nik
               </th>
-              <th className=" lg:w-2xl bg-purple-600 border-x border-gray-300 ">
-                Homebase Dosen
-              </th>
+          
               <th className=" lg:w-2xl bg-purple-600 border-x border-gray-300 ">
                 Foto
               </th>
@@ -194,11 +153,9 @@ export default function Dosen() {
                   {data?.nama}
                 </td>
                 <td className="py-2 px-2 border-x border-gray-300 bg-purple-100">
-                  {data?.nik}
+                  {data?.nitk}
                 </td>
-                <td className="py-2 px-2 border-x border-gray-300 bg-purple-100">
-                  {data?.jenis_dosen}
-                </td>
+      
                 <td className="py-2 px-2 border-x border-gray-300 bg-purple-100 flex justify-center ">
                   <img
                     src={data?.foto || "/profil.png"}
