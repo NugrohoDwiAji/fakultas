@@ -24,7 +24,7 @@ const handlePutMethod = async (req: NextApiRequest, res: NextApiResponse) => {
 
   const form = formidable({
     uploadDir: path.join(process.cwd(), "public", "pengumuman"),
-    filename: (_, __, part, ___) => {
+    filename: (_, __, part) => {
       return `${part.originalFilename}`;
     },
   });
@@ -90,7 +90,7 @@ const handleGetById = async (req: NextApiRequest, res: NextApiResponse) => {
       where: { id: id as string },
     });
     res.status(200).json(result);
-  } catch (error) {
+  } catch {
     res.status(500).json({ error: "Error fetching content" });
   }
 };

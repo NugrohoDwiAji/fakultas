@@ -1,8 +1,9 @@
 import React from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { format } from "date-fns";
+import Image from "next/image";
 
 type BeritaType = {
   id: string;
@@ -16,7 +17,7 @@ export default function BeritaDetail() {
   const [beritaData, setBeritaData] = useState<BeritaType | null>(null);
   const router = useRouter();
 
-  const getDataBerita = async () => {
+  const getDataBerita = useCallback(async () => {
     if (router.isReady) {
       const id = router.query.beritaDetail as string;
       try {
@@ -27,18 +28,20 @@ export default function BeritaDetail() {
         console.log("Error fetching data", error);
       }
     }
-  };
+  }, [router]);
 
   useEffect(() => {
     getDataBerita();
-  }, [router]);
+  }, [getDataBerita]);
 
   return (
     <div className="min-h-screen flex flex-col items-center m-auto lg:w-[800px] p-5 lg:0-0">
-      <img
-        src={beritaData?.filepath}
+      <Image
+        src={beritaData?.filepath || "/img/placeholder.png"}
         alt="Eror"
-        className="w-full h-[28rem] bg-gray-300 mt-20 mb-5"
+        width={800}
+        height={448}
+        className="w-full h-[28rem] bg-gray-300 mt-20 mb-5 object-cover"
       />
       <main>
         <h1 className="text-4xl font-bold mb-2">{beritaData?.title}</h1>

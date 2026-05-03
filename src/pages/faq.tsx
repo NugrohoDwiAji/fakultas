@@ -1,7 +1,7 @@
 import React,{useEffect, useState} from 'react'
 import axios from 'axios';
-import { data } from 'framer-motion/client';
 import CardFaq from '@/components/cards/CardFaq';
+import Image from 'next/image';
 
 
 type IdentitasType = {
@@ -46,10 +46,11 @@ const Faq = () => {
     return (
       <div className="min-h-screen">
         <div className="relative h-80 md:h-96 lg:h-[35rem]">
-          <img
+          <Image
+            fill
             src="/img/banner-pasca.png"
             alt=""
-            className="w-full bg-cover h-full"
+            className="object-cover"
           />
           <div className="absolute top-0 left-0 right-0 bottom-0 flex flex-col justify-center p-10 -mt-9 md:-mt-20 lg:-mt-36">
             <h1 className="text-white text-3xl md:text-5xl lg:text-6xl font-bold">

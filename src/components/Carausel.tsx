@@ -9,7 +9,7 @@ type Props = {
 
 export default function Carousel({children}:Props):React.JSX.Element {
   const [currentSlide, setcurrentSlide] = useState(0)
-  const [arrows, setarrows] = useState(false)
+  const [arrows] = useState(false)
   const [slidesToShow, setSlidesToShow] = useState(4)
 
   // Deteksi ukuran layar dan ubah slidesToShow

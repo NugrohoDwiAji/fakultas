@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { Phone } from "lucide-react";
 import { User } from "lucide-react";
@@ -8,6 +7,7 @@ import { Globe } from "lucide-react";
 import { Facebook } from "lucide-react";
 import { Instagram } from "lucide-react";
 import axios from "axios";
+import Image from "next/image";
 
 type IdentitasType = {
   id: string;
@@ -15,15 +15,8 @@ type IdentitasType = {
   value: string;
 };
 
-type ProdiType = {
-  id: string;
-  nama: string;
-  link: string;
-};
-
 const Footer = () => {
   const [identitas, setIdentitas] = useState<IdentitasType[] | null>([]);
-  const [prodi, setProdi] = useState<ProdiType[] | null>([]);
 
   const handleGetIdentitas = async () => {
     try {
@@ -33,14 +26,9 @@ const Footer = () => {
       console.log(error);
     }
   };
-  const handleGetProdi = async () => {
-    try {
-      const result = await axios.get("/api/prodi");
-      setProdi(result.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  useEffect(() => {
+    handleGetIdentitas();
+  }, []);
 
   const icon = [
     { icon: <Globe />, url: `https://universitasbumigora.ac.id` },
@@ -80,17 +68,18 @@ const Footer = () => {
 
   useEffect(() => {
     handleGetIdentitas();
-    handleGetProdi();
   }, []);
   return (
     <footer className="bg-purple-900 text-white flex flex-col items-center">
       <div className="md:flex md:gap-16 px-7 pt-5 md:pt-14 md:px-10 pb-10 lg:flex gap-28 lg:gap-0  lg:text-xl  lg:w-full justify-center  ">
         {/* alamat dan logo */}
         <div className="lg:mt-8">
-          <img
+          <Image
             src="/img/pascasarjana.png"
             alt=""
-            className="text-white h-28 w-full"
+            width={200}
+            height={112}
+            className="text-white h-28 w-auto object-contain"
           />
         </div>
         <div className="">

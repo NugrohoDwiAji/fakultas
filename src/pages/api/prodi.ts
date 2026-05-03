@@ -31,7 +31,7 @@ const handleDeleteMethod = async (req: NextApiRequest, res: NextApiResponse) => 
     try {
         const result = await prisma.prodi.deleteMany();
         res.status(200).json(result);
-    } catch (error) {
+    } catch {
         res.status(500).json({ error: "Error Deleting content" });
     }
 }
@@ -51,7 +51,7 @@ const handlePutMethod = async (req: NextApiRequest, res: NextApiResponse) => {
             }
         });
         res.status(202).json(result);
-    } catch (error) {
+    } catch {
         res.status(500).json({ error: "Error Updating content" });
     }
 }

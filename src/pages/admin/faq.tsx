@@ -5,7 +5,6 @@ import {
   Trash2,
   Eye,
   Plus,
-  Filter,
   ChevronLeft,
   ChevronRight,
   Database,
@@ -53,6 +52,7 @@ export default function QuestionAnswerTable() {
   // useEffect untuk fetch data hanya sekali saat component mount
   useEffect(() => {
     handleGetItem();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array - hanya jalankan sekali
 
   // useEffect terpisah untuk filtering - tidak memanggil handleGetItem lagi
@@ -109,18 +109,6 @@ export default function QuestionAnswerTable() {
   // Fungsi untuk refresh data manual jika diperlukan
   const handleRefresh = () => {
     handleGetItem();
-  };
-
-  // Fungsi callback setelah berhasil tambah/edit data
-  const handleDataUpdate = (newData?: QuestionAnswer) => {
-    if (newData) {
-      // Jika ada data baru, tambahkan ke state
-      setAllData(prevData => [...prevData, newData]);
-    } else {
-      // Jika tidak ada data baru, refresh data
-      handleGetItem();
-    }
-    setIsDelete(false);
   };
 
   return (

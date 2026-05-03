@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import classnames from "classnames";
 import axios from "axios";
+import Image from "next/image";
 
 type IdentitasType = {
   id: string;
@@ -143,7 +144,7 @@ export default function Header({ isScroll }: Props) {
       } transition-all duration-500 ease-in-out py-5 px-5 md:px-7 lg:px-20`}
     >
       <div className="flex items-center gap-3 ">
-        <img src="/img/ubg.png" alt="" className="h-9 md:h-12" />
+        <Image src="/img/ubg.png" alt="" width={48} height={48} className="h-9 md:h-12 w-auto" />
         <div className={`text-white font-bold text-xs md:text-sm lg:text-base`}>
           <h1>
             {" "}

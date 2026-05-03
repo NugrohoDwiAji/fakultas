@@ -133,7 +133,13 @@ export default function Berkas() {
       {confirm && (
         <div className="flex gap-5 w-full justify-center mt-5">
           <ButtonPrimary
-            onClick={()=>{isUpdate.status? handleUpdate(isUpdate.id) :handleSave() }}
+            onClick={() => {
+              if (isUpdate.status) {
+                handleUpdate(isUpdate.id);
+              } else {
+                handleSave();
+              }
+            }}
             ClassName="bg-purple-600 text-white"
           >
             Simpan

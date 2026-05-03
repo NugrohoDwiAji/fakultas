@@ -1,7 +1,7 @@
-import React, { use } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useState, useEffect } from "react";
 import CardPengumuman from "@/components/cards/CardPengumuman";
+import Image from "next/image";
 
 type PengumumanType = {
   id: string;
@@ -29,10 +29,11 @@ export default function Pengumuman() {
   return (
     <div className="min-h-screen">
       <div className="relative h-80 md:h-96 lg:h-[28rem]">
-        <img
+        <Image
+          fill
           src="/img/banner-pasca.png"
           alt=""
-          className="w-full bg-cover h-full"
+          className="object-cover"
         />
         <div className="absolute top-0 left-0 right-0 bottom-0 bg-blue-950/50 flex flex-col justify-center p-10 ">
           <h1 className="text-white text-3xl md:text-4xl lg:text-6xl font-bold">

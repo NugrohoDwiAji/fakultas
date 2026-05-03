@@ -20,7 +20,7 @@ export default function ModalEdit({
 
   const handleUpdate = async () => {
     try {
-      const result = await axios.put(`/api/contentDetails?id=${id}`, {
+      await axios.put(`/api/contentDetails?id=${id}`, {
         title: title,
         value: value,
       });

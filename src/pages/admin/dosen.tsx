@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import ButtonPrimary from "@/components/elements/ButtonPrimary";
 import FileDropzone from "@/components/admin/elements/FileDropZone";
 import axios from "axios";
+import Image from "next/image";
 import SuccessAlert from "@/components/cards/AlertSucces";
 
 type DataDosen = {
@@ -200,12 +201,12 @@ export default function Dosen() {
                   {data?.jenis_dosen}
                 </td>
                 <td className="py-2 px-2 border-x border-gray-300 bg-purple-100 flex justify-center ">
-                  <img
+                  <Image
                     src={data?.foto || "/profil.png"}
                     alt=""
-                    width={100}
-                    height={100}
-                    className=" w-[6.5rem] h-[6.5rem] bg-purple-400 "
+                    width={104}
+                    height={104}
+                    className="w-[6.5rem] h-[6.5rem] bg-purple-400 object-cover"
                   />
                 </td>
                 <td className="bg-purple-100 border-b border-gray-300">

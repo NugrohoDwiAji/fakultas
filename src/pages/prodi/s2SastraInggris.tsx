@@ -3,6 +3,7 @@ import axios from "axios";
 import CardProdi from "@/components/CardProdi";
 import TabelKurikulum from "@/components/TabelKurikulum";
 import CardKurikulum from "@/components/CardKurikulum";
+import Image from "next/image";
 
 interface Prodi {
   id: string;
@@ -56,7 +57,7 @@ const dataMap = formattedContent.slice(1);
  const handleGetKurikulum = async () => {
     try {
       const result = await axios.get(
-        "https://backbone.universitasbumigora.ac.id/api/v1/kurikulum/19"
+        "https://backbone.ubg.ac.id/api/v1/kurikulum/19"
       );
       setkurikulum(result.data);
       console.log("ini result", result);
@@ -73,10 +74,11 @@ handleGetKurikulum();
   return (
     <div className="min-h-screen">
       <div className="relative h-80 md:h-96 lg:h-[35rem]">
-        <img
+        <Image
+          fill
           src="/img/banner-pasca.png"
           alt=""
-          className="w-full bg-cover h-full"
+          className="object-cover"
         />
         <div className="absolute top-0 left-0 right-0 bottom-0 flex flex-col justify-center p-3 md:p-10 -mt-9 md:-mt-20 lg:-mt-36">
           <h1 className="text-white text-3xl md:text-5xl lg:text-6xl font-bold">

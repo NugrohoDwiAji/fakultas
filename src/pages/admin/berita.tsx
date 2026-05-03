@@ -2,7 +2,6 @@ import AdminLayout from "@/components/layouts/AdminLayout";
 import React, { useState, useEffect } from "react";
 import ButtonPrimary from "@/components/elements/ButtonPrimary";
 import FileDropzone from "@/components/admin/elements/FileDropZone";
-import { form, tr } from "framer-motion/client";
 import axios from "axios";
 import { format } from "date-fns";
 import SuccessAlert from "@/components/cards/AlertSucces";

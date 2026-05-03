@@ -1,6 +1,7 @@
 import React,{useEffect} from "react";
 import "aos/dist/aos.css";
 import Aos from "aos";
+import Image from "next/image";
 
 
 
@@ -22,10 +23,12 @@ export default function CardDosen({nama, nik, foto="/profil.png"}: Props) {
   return (
     <div data-aos="flip-left" className=" h-32 rounded-lg shadow-xl flex max-w-[22rem] lg:max-w-[25rem] text-wrap ">
       <div className="flex justify-center items-center h-32 w-32 bg-purple-800 rounded-full">
-        <img
+        <Image
           src={foto}
           alt=""
-          className=" w-[7rem] h-[7rem] bg-purple-400 rounded-full"
+          width={112}
+          height={112}
+          className="w-[7rem] h-[7rem] bg-purple-400 rounded-full object-cover"
         />
       </div>
       <div className=" flex flex-col justify-evenly w-[14rem] lg:w-[17rem]">

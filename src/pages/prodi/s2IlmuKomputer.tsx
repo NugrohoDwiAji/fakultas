@@ -3,6 +3,7 @@ import axios from "axios";
 import CardProdi from "@/components/CardProdi";
 import CardKurikulum from "@/components/CardKurikulum";
 import TabelKurikulum from "@/components/TabelKurikulum";
+import Image from "next/image";
 
 interface Prodi {
   id: string;
@@ -48,32 +49,41 @@ export default function S2IlmuKomputer() {
     .map((item) => item.replace(/^\d+\.\s*/, "").trim()) // Hapus nomor dan spasi setelahnya
     .filter((item) => item.length > 0); // Hapus item kosong jika ada
 
+
   const dataMap = formattedContent.slice(1);
 
-  const handleGetKurikulum = async () => {
-    try {
-      const result = await axios.get(
-        "https://backbone.universitasbumigora.ac.id/api/v1/kurikulum/18"
-      );
-      setkurikulum(result.data);
-      console.log("ini result", result);
-    } catch (error) {
-      console.log(error, "eror");
+const handleGetKurikulum = async () => {
+  try {
+    // Beri tahu Axios bahwa tipe datanya adalah Object dengan key string dan value Kurikulum
+    const result = await axios.get<Record<string, Kurikulum>>(
+      "https://backbone.ubg.ac.id/api/v1/kurikulum/18"
+    );
+    
+    if (result.data) {
+      const arrayKurikulum = Object.values(result.data);
+      setkurikulum(arrayKurikulum);
+    } else {
+      setkurikulum([]);
     }
-  };
-
+    
+  } catch (error) {
+    console.log(error, "eror kurikulum");
+  }
+};
   useEffect(() => {
     handleGetProdi();
     handleGetKurikulum();
+  
   }, []);
 
   return (
     <div className="min-h-screen">
       <div className="relative h-80 md:h-96 lg:h-[35rem]">
-        <img
+        <Image
+          fill
           src="/img/banner-pasca.png"
           alt=""
-          className="w-full bg-cover h-full"
+          className="object-cover"
         />
         <div className="absolute top-0 left-0 right-0 bottom-0 flex flex-col justify-center p-3 md:p-10 -mt-9 md:-mt-20 lg:-mt-36">
           <h1 className="text-white text-3xl md:text-5xl lg:text-6xl font-bold">
@@ -93,7 +103,7 @@ export default function S2IlmuKomputer() {
       {/* Main */}
       <main className="px-5 flex flex-col my-10 md:my-12 md:max-w-xl lg:max-w-4xl m-auto gap-2">
         <CardProdi title="Visi" onClick={()=>setProdiActiveId(1)} isOpen={prodiActiveId === 1 ? true : false}>
-          {prodi?.find((item) => item.nama === "S2 Ilmu Komputer")?.visi}
+          {prodi?.find((item) => item.nama === "S2 Ilmu Komputer")?.misi}
         </CardProdi>
 
         <CardProdi title="Misi" isOpen={prodiActiveId === 2 ? true : false} onClick={()=>setProdiActiveId(2)}>
@@ -109,22 +119,31 @@ export default function S2IlmuKomputer() {
         <CardProdi title="Profil Lulusan" isOpen={prodiActiveId === 3 ? true : false} onClick={()=>setProdiActiveId(3)}>
           <div></div>
         </CardProdi>
-        <CardProdi title="Kurikulum" isOpen={prodiActiveId === 4 ? true : false} onClick={()=>setProdiActiveId(4)}>
-          {kurikulum.map((item, index) => (
-            <CardKurikulum semester={item.semester} key={index} onClick={()=>setKurikulumActiveId(index)} isOpen={kurikulumActiveId === index ? true : false}>
-              {item.data.map((data, index) => (
-                <TabelKurikulum
-                  id_matkul={data.id_matakuliah}
-                  nama_matakuliah={data.nama_matakuliah}
-                  kode_matakuliah={data.kode_matakuliah}
-                  no={index + 1}
-                  sks={data.sks_teori + data.sks_praktek + data.sks_praktikum}
-                  key={index}
-                />
-              ))}
-            </CardKurikulum>
-          ))}
-        </CardProdi>
+        {/* KODE YANG SUDAH DIAMANKAN ✅ */}
+<CardProdi title="Kurikulum" isOpen={prodiActiveId === 4 ? true : false} onClick={()=>setProdiActiveId(4)}>
+  
+  {Array.isArray(kurikulum) && kurikulum.map((item, index) => (
+    <CardKurikulum 
+      semester={item?.semester} 
+      key={index} 
+      onClick={() => setKurikulumActiveId(index)} 
+      isOpen={kurikulumActiveId === index ? true : false}
+    >
+      {/* Amankan juga map di bagian dalamnya dengan tanda tanya (?) */}
+      {Array.isArray(item?.data) && item.data.map((data, index) => (
+        <TabelKurikulum
+          id_matkul={data?.id_matakuliah}
+          nama_matakuliah={data?.nama_matakuliah}
+          kode_matakuliah={data?.kode_matakuliah}
+          no={index + 1}
+          sks={(data?.sks_teori || 0) + (data?.sks_praktek || 0) + (data?.sks_praktikum || 0)}
+          key={index}
+        />
+      ))}
+    </CardKurikulum>
+  ))}
+  
+</CardProdi>
       </main>
     </div>
   );

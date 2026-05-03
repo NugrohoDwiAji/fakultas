@@ -2,8 +2,6 @@ import AdminLayout from "@/components/layouts/AdminLayout";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import ButtonPrimary from "@/components/elements/ButtonPrimary";
-import { set } from "date-fns";
-import { data, div } from "framer-motion/client";
 import SuccessAlert from "@/components/cards/AlertSucces";
 
 interface Prodi {
@@ -53,7 +51,7 @@ export default function Prodi() {
       <h1>Prodi</h1>
       <form action="" className="flex flex-col gap-3  ">
         {prodi.map((item, index) => (
-          <div className="flex flex-col gap-3">
+          <div key={index} className="flex flex-col gap-3">
             <label
               htmlFor=""
               className="py-2 px-10 border rounded-md text-white bg-purple-600 font-bold w-fit outline-0"

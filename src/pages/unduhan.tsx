@@ -1,8 +1,7 @@
-import CardBerkas from "@/components/cards/CardBerkas";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { ChevronRight, ChevronLeft } from "lucide-react";
-import { set } from "date-fns";
+import Image from "next/image";
 
 type Berkas = {
   id: string;
@@ -37,7 +36,7 @@ export default function Unduhan() {
     handleGetIdentitas();
   }, []);
 
-  const handleBerkas = async () => {
+  const handleBerkas = useCallback(async () => {
     if (itemSearch !== "") {
       try {
         const response = await axios.get(`/api/berkasDetails?name=${itemSearch}`);
@@ -53,10 +52,9 @@ export default function Unduhan() {
         console.log(error);
       }
     }
-  };
+  }, [itemSearch]);
 
   // pagenitation logic
-    const totalPages = Math.ceil(berkas.length / viewPerPage);
   const startIndex = (currentPage - 1) * viewPerPage;
   const endIndex = startIndex + viewPerPage;
   const currentData = berkas.slice(startIndex, endIndex);
@@ -64,16 +62,16 @@ export default function Unduhan() {
 
   useEffect(() => {
     handleBerkas();
-    console.log(berkas)
-  }, [itemSearch]);
+  }, [handleBerkas]);
 
   return (
     <div className="min-h-screen">
       <div className="relative h-80 md:h-96 lg:h-[35rem]">
-        <img
+        <Image
+          fill
           src="/img/banner-pasca.png"
           alt=""
-          className="w-full bg-cover h-full"
+          className="object-cover"
         />
         <div className="absolute top-0 left-0 right-0 bottom-0 flex flex-col justify-center p-3 md:p-10 -mt-9 md:-mt-20 lg:-mt-36">
           <h1 className="text-white text-3xl md:text-5xl lg:text-6xl font-bold">

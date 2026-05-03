@@ -2,7 +2,6 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/services/prisma";
 import formidable, { Fields, Files } from "formidable";
 import fs from "fs";
-import path from "path";
 
 export const config = {
   api: {
@@ -24,13 +23,13 @@ const handlePutMethod = async (req: NextApiRequest, res: NextApiResponse) => {
 
   const form = formidable({
     uploadDir: uploadPath,
-    filename: (_, __, part, ___) => {
+    filename: (_, __, part) => {
       return `${part.originalFilename}`;
     },
   });
 
   try {
-    const { fields, files } = await new Promise<{
+    const { files } = await new Promise<{
       fields: Fields;
       files: Files;
     }>((resolve, reject) => {
@@ -48,11 +47,9 @@ const handlePutMethod = async (req: NextApiRequest, res: NextApiResponse) => {
 
     const file = Array.isArray(files.file) ? files.file[0] : files.file;
     const filePath = `/uploads/img/${file?.originalFilename}`;
-    const titletmp = fields.title?.toString();
-    const title = titletmp || "utitled";
 
     const saved = await prisma.identitas.update({
-      where: {name: "Struktur Organisasi"},
+      where: { name: "Struktur Organisasi" },
       data: {
         value: filePath,
       },
@@ -66,7 +63,7 @@ const handlePutMethod = async (req: NextApiRequest, res: NextApiResponse) => {
 
 const handleGetMethode = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
-    const result = await prisma.pengumuman.findMany();
+    const result = await prisma.identitas.findMany();
     res.status(200).json(result);
   } catch (error) {
     console.error("Error fetching content:", error);
@@ -74,26 +71,13 @@ const handleGetMethode = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 };
 
-const handleGetById = async (req: NextApiRequest, res: NextApiResponse) => {
-  const { id } = req.query;
-  try {
-    const result = await prisma.pengumuman.findUnique({
-      where: { id: id as string },
-    });
-    res.status(200).json(result);
-  } catch (error) {
-    res.status(500).json({ error: "Error fetching content" });
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method === "GET") {
+    return handleGetMethode(req, res);
+  }
+  if (req.method === "PUT") {
+    return handlePutMethod(req, res);
+  } else {
+    res.status(405).json({ message: "Method not allowed" });
   }
 }
-  
-
-  export default function handler(req: NextApiRequest, res: NextApiResponse) {
-    if (req.method === "GET") {
-      return handleGetMethode(req, res);
-    }
-    if (req.method === "PUT") {
-      return handlePutMethod(req, res);
-    } else {
-      res.status(405).json({ message: "Method not allowed" });
-    }
-  }

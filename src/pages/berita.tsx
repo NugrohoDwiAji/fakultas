@@ -3,6 +3,7 @@ import { useState } from "react";
 import axios from "axios";
 import CardBerita from "@/components/cards/CardBerita";
 import { useEffect } from "react";
+import Image from "next/image";
 
 type DataBerita = {
   id: string;
@@ -31,10 +32,11 @@ export default function Berita() {
   return (
     <div className="min-h-screen">
       <div className="relative h-80 md:h-96 lg:h-[28rem]">
-        <img
+        <Image
+          fill
           src="/img/banner-pasca.png"
           alt=""
-          className="w-full bg-cover h-full"
+          className="object-cover"
         />
         <div className="absolute top-0 left-0 right-0 bottom-0 bg-blue-950/50 flex flex-col justify-center p-10 ">
           <h1 className="text-white text-3xl md:text-4xl lg:text-6xl font-bold">

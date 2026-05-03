@@ -4,7 +4,6 @@ import ButtonPrimary from "@/components/elements/ButtonPrimary";
 import FileDropzone from "@/components/admin/elements/FileDropZone";
 import axios from "axios";
 import SuccessAlert from "@/components/cards/AlertSucces";
-import { u } from "framer-motion/m";
 
 type Data = {
   id: string;

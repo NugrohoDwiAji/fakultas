@@ -3,8 +3,7 @@ import AdminLayout from "@/components/layouts/AdminLayout";
 import ButtonPrimary from "@/components/elements/ButtonPrimary";
 import ModalEdit from "@/components/admin/ModalEdit";
 import axios from "axios";
-import SuccessAlert from "@/components/cards/AlertSucces";  
-import { set } from "date-fns";
+import SuccessAlert from "@/components/cards/AlertSucces";
 
 type ContentType = {
   id: string;

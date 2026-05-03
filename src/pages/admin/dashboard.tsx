@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { PrismaClient } from "@prisma/client";
 import { GetServerSideProps } from "next";
 import AdminLayout from "@/components/layouts/AdminLayout";
+import Image from "next/image";
 import {
   LineChart,
   Line,
@@ -11,19 +12,17 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { format, set } from "date-fns";
+import { format } from "date-fns";
 import ButtonPrimary from "@/components/elements/ButtonPrimary";
 import Prodis from "@/components/datas/Prodi.json";
 import FileDropzone from "@/components/admin/elements/FileDropZone";
 import axios from "axios";
 import SuccessAlert from "@/components/cards/AlertSucces";
-import { div } from "framer-motion/client";
 
 type VisitData = {
   data: { date: string; count: number }[];
   date: string;
   count: number;
-  rawResults?: any;
 };
 
 type Identitas = {
@@ -54,7 +53,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
   return { props: { data } };
 };
 
-export default function Dashboard({ data, rawResults }: VisitData) {
+export default function Dashboard({ data }: VisitData) {
   const [canEdit, setcanEdit] = useState(false);
   const [datas, setDatas] = useState<Identitas[]>([]);
   const [organisasiImg, setOrganisasiImg] = useState<File | null>(null);
@@ -109,7 +108,7 @@ export default function Dashboard({ data, rawResults }: VisitData) {
       file: organisasiImg,
     };
     try {
-      const result = await axios.put("/api/strukturorganisasi", data, {
+      await axios.put("/api/strukturorganisasi", data, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -446,14 +445,15 @@ export default function Dashboard({ data, rawResults }: VisitData) {
           {canEdit ? (
             <FileDropzone onDrop={handleOndrop} />
           ) : (
-            <div className="h-72 w-72 bg-white rounded-lg flex items-center justify-center">
-              <img
+            <div className="relative h-72 w-72 bg-white rounded-lg flex items-center justify-center">
+              <Image
                 src={
                   datas.find((item) => item.name === "Struktur Organisasi")
-                    ?.value
+                    ?.value || "/img/placeholder.png"
                 }
                 alt="Image"
-                className="h-full w-full"
+                fill
+                className="object-contain"
               />
             </div>
           )}

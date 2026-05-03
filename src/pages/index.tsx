@@ -8,6 +8,7 @@ import "aos/dist/aos.css";
 import AnimatedNumber from "@/components/elements/AnimatedNumber";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import Image from "next/image";
 import CardFaq from "@/components/cards/CardFaq";
 import Carausel from "@/components/Carausel";
 
@@ -157,13 +158,15 @@ export default function Home() {
         <hr className="border-t-[3px] border-purple-900 w-[50%] md:w-[25%] lg:w-[14%] lg:mb-5 " />
         <div className="md:flex gap-32 justify-center lg:px-14 md:h-[28rem] pb-10 ">
           <div className="h-full flex items-center justify-end w-[40%]  ">
-            <img
+            <Image
               data-aos="flip-left"
               data-aos-easing="ease-out-cubic"
               data-aos-duration="1000"
               src="/img/avatar.png"
               alt=""
-              className="hidden md:block md:h-64 lg:h-96 "
+              width={384}
+              height={384}
+              className="hidden md:block md:h-64 lg:h-96 w-auto"
             />
           </div>
           <div className="md:w-[45%] h-full flex flex-col gap-5 justify-center">
@@ -323,25 +326,31 @@ export default function Home() {
 
       {/* logo */}
       <div className="flex justify-center items-center pb-5 bg-white md:gap-5 h-fit ">
-        <img
+        <Image
           data-aos="zoom-in-right"
           src="/img/ubg-full.jpg"
           alt="eror"
-          className=" h-24 md:h-36"
+          width={200}
+          height={144}
+          className="h-24 md:h-36 w-auto"
         />
         <div className="h-32 w-[2px] bg-purple-900 mx-2"></div>
-        <img
+        <Image
           data-aos="zoom-in-left"
           src="/img/banpt.png"
           alt="eror"
-          className="h-20 md:h-32"
+          width={200}
+          height={128}
+          className="h-20 md:h-32 w-auto"
         />
         <div className="h-32 w-[2px] bg-purple-900 mx-2"></div>
-        <img
+        <Image
           data-aos="zoom-in-down"
           src="/img/laminfokom.png"
           alt="eror"
-          className=" h-24 md:h-32"
+          width={200}
+          height={128}
+          className="h-24 md:h-32 w-auto"
         />
       </div>
     </div>

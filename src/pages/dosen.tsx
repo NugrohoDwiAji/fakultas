@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import CardDosen from "@/components/cards/CardDosen";
+import Image from "next/image";
 
 type IdentitasType = {
   id: string;
@@ -51,10 +52,11 @@ export default function Dosen() {
   return (
     <div className="min-h-screen">
       <div className="relative h-80 md:h-96 lg:h-[35rem]">
-        <img
+        <Image
+          fill
           src="/img/banner-pasca.png"
           alt=""
-          className="w-full bg-cover h-full"
+          className="object-cover"
         />
         <div className="absolute top-0 left-0 right-0 bottom-0 flex flex-col justify-center p-5 md:p-10 -mt-9 md:-mt-20 lg:-mt-36">
           <h1 className="text-white text-3xl md:text-5xl lg:text-6xl font-bold">

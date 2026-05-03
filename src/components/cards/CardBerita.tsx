@@ -4,8 +4,7 @@ import React, { useEffect } from "react";
 import ButtonPrimary from "../elements/ButtonPrimary";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
-import AOS from "aos";
-import "aos/dist/aos.css";
+import Image from "next/image";
 
 type Props = {
   title: string;
@@ -31,10 +30,12 @@ const truncateText = (text: string, maxLength: number) => {
   }, []);
   return (
     <div data-aos="zoom-in-up" className="h-[30rem] text-start w-72 md:w-72 shadow-xl shadow-gray-300 rounded-xl p-3 flex flex-col justify-between gap-4 bg-white">
-      <img
+      <Image
         src={img}
         alt="notfound"
-        className="h-52 w-full rounded-xl "
+        width={288}
+        height={208}
+        className="h-52 w-full rounded-xl object-cover"
       />
       <div>
         <h1 className="font-bold text-lg">{truncateText(title, 30)}</h1>

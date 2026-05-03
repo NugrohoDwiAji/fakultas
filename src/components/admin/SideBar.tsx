@@ -2,6 +2,7 @@ import React from "react";
 import MenuSidebar from "./elements/MenuSidebar";
 import { usePathname } from "next/navigation";
 import { Layers, House, Library, FileAxis3d, Newspaper, GraduationCap, University, MailQuestion, Users  } from "lucide-react";
+import Image from "next/image";
 export default function SideBar() {
   const menu = [
     {
@@ -57,7 +58,7 @@ export default function SideBar() {
   return (
     <div className="w-64 h-full bg-white p-5 fixed  z-50">
       <div className="flex items-center  gap-2 mb-3">
-        <img src="/img/ubg-blue.png" alt="" className="h-14"/>
+        <Image src="/img/ubg-blue.png" alt="" width={56} height={56} className="h-14 w-auto" />
         <h1 className="text-2xl font-bold text-purple-600">Admin</h1>
       </div>
       <h2 className="py-2 text-gray-400">Menu</h2>

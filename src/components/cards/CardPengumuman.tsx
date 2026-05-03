@@ -1,7 +1,5 @@
 import React, { useEffect } from "react";
 import { format } from "date-fns";
-import AOS from "aos";
-import "aos/dist/aos.css";
 
 type Props = {
   title:string;

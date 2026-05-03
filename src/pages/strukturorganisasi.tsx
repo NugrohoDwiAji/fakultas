@@ -1,6 +1,7 @@
 
 import React,{useEffect, useState} from "react";
 import axios from 'axios';
+import Image from 'next/image';
 
 type IdentitasType = {
   id: string;
@@ -26,7 +27,7 @@ export default function StrukturOrganisasi() {
     <div>
       {/* jumbotron */}
       <div className="relative h-80 md:h-96 lg:h-[35rem]">
-        <img src="/img/banner-pasca.png" alt="" className="w-full bg-cover h-full" />
+        <Image fill src="/img/banner-pasca.png" alt="" className="object-cover" />
        <div className="absolute top-0 left-0 right-0 bottom-0 flex flex-col justify-center p-10 -mt-9 md:-mt-20 lg:-mt-36 ">
           <h1 className="text-white text-3xl md:text-5xl lg:text-6xl font-bold">
             Struktur Organisasi
@@ -45,7 +46,7 @@ export default function StrukturOrganisasi() {
       {/* Main */}
       <main className="flex flex-col items-center pb-10 min-h-64 mt-10">
     
-      <img src={identitas?.find((item) => item.name === "Struktur Organisasi")?.value || ""} alt="Struktur Organisasi" width={1000} height={1000} />
+      <Image src={identitas?.find((item) => item.name === "Struktur Organisasi")?.value || "/img/placeholder.png"} alt="Struktur Organisasi" width={1000} height={1000} />
       </main>
     </div>
   );

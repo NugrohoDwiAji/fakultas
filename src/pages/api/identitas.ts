@@ -1,14 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/services/prisma";
-import formidable, { Fields, Files } from "formidable";
-import fs from "fs";
-import path from "path";
 
-type DataIdentitas = {
-  id:string[]
-  title: string[];
-  value: string[];
-};
 
 // export const config = {
 //   api: {
@@ -35,6 +27,7 @@ const handlePostMethod = async (req: NextApiRequest, res: NextApiResponse) => {
     })
     res.status(202).json(result);
   } catch (error) {
+    console.log(error)
     res.status(500).json({ error: "Error creating content" });  
   }
   // createUploadDir(path.join(process.cwd(), "/public/img"));

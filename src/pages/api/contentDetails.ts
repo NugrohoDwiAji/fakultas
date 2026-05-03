@@ -12,7 +12,7 @@ const handleGetCotentById = async (
       where: { id: id as string },
     });
     res.status(200).json(result);
-  } catch (error) {
+  } catch {
     res.status(500).json({ error: "Error fetching content" });
   }
 };

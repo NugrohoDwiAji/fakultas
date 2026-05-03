@@ -1,10 +1,11 @@
 import React from 'react'
+import Image from 'next/image'
 
 export default function Kurikulum() {
   return (
    <div className='min-h-screen'>
       <div className="relative h-80 md:h-96 lg:h-[28rem]">
-        <img src="/img/bg-kampus.jpg" alt="" className="w-full bg-cover h-full" />
+        <Image fill src="/img/bg-kampus.jpg" alt="" className="object-cover" />
         <div className="absolute top-0 left-0 right-0 bottom-0 bg-blue-950/50 flex flex-col justify-center p-10 ">
           <h1 className="text-white text-3xl md:text-4xl lg:text-6xl font-bold">
             Kurikulum
