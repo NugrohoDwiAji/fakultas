@@ -6,24 +6,13 @@ import { useRouter } from "next/router";
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
   const currentPath = router.pathname;
-  const hidefooterHeader =
-    currentPath === "/admin/dashboard" ||
-    currentPath === "/admin/content" ||
-    currentPath === "/admin/pengumuman" ||
-    currentPath === "/admin/berkas" ||
-    currentPath === "/login" ||
-    currentPath === "/admin/strukturOrganisasi" ||
-    currentPath === "/admin/berita"||
-    currentPath === "/admin/dosen" ||
-    currentPath === "/admin/prodi"||
-    currentPath === "/admin/faq" ||
-    currentPath === "/admin/staf";;
+  const hideLayout = currentPath.startsWith("/admin") || currentPath === "/login";
 
   return (
     <MainLayout
-      hideFooter={hidefooterHeader}
-      hideHeader={hidefooterHeader}
-      hideContactHeader={hidefooterHeader}
+      hideFooter={hideLayout}
+      hideHeader={hideLayout}
+      hideContactHeader={hideLayout}
     >
       <Component {...pageProps} />
     </MainLayout>

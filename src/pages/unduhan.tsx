@@ -1,68 +1,29 @@
-import React, { useEffect, useState, useCallback } from "react";
-import axios from "axios";
+import React, { useState } from "react";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import Image from "next/image";
+import { GetServerSideProps } from "next";
+import prisma from "@/services/prisma";
+import { BerkasType, IdentitasType } from "@/types";
 
-type Berkas = {
-  id: string;
-  title: string;
-  filepath: string;
-  uploadat: string;
-};
+interface UnduhanProps {
+  berkas: BerkasType[];
+  identitas: IdentitasType[];
+}
 
-type IdentitasType = {
-  id: string;
-  name: string;
-  value: string;
-};
-
-export default function Unduhan() {
-  const [berkas, setberkas] = useState<Berkas[]>([]);
-  const [identitas, setIdentitas] = useState<IdentitasType[] | null>([]);
+export default function Unduhan({ berkas, identitas }: UnduhanProps) {
   const [viewPerPage, setViewPerPage] = useState(5);
-  const [itemSearch, setItemSearch] = useState("");
-  const [currentPage, setCurrentPage] = useState(1)
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const handleGetIdentitas = async () => {
-    try {
-      const result = await axios.get("/api/identitas");
-      setIdentitas(result.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  const filteredBerkas = berkas.filter((item) =>
+    item.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-  useEffect(() => {
-    handleGetIdentitas();
-  }, []);
-
-  const handleBerkas = useCallback(async () => {
-    if (itemSearch !== "") {
-      try {
-        const response = await axios.get(`/api/berkasDetails?name=${itemSearch}`);
-        setberkas(response.data);
-      } catch (error) {
-        console.log(error);
-      }
-    } else {
-      try {
-        const response = await axios.get("/api/berkas");
-        setberkas(response.data);
-      } catch (error) {
-        console.log(error);
-      }
-    }
-  }, [itemSearch]);
-
-  // pagenitation logic
+  // pagination logic
   const startIndex = (currentPage - 1) * viewPerPage;
   const endIndex = startIndex + viewPerPage;
-  const currentData = berkas.slice(startIndex, endIndex);
-
-
-  useEffect(() => {
-    handleBerkas();
-  }, [handleBerkas]);
+  const currentData = filteredBerkas.slice(startIndex, endIndex);
+  const totalPages = Math.ceil(filteredBerkas.length / viewPerPage);
 
   return (
     <div className="min-h-screen">
@@ -94,12 +55,12 @@ export default function Unduhan() {
           {/* stats */}
           <div className="border border-gray-200 w-full h-fit rounded-lg mb-5 p-2 ">
             <div className="flex gap-5 items-center pb-2">
-              {/* serach */}
+              {/* search */}
               <input
                 type="text"
                 onChange={(e) => {
-                  handleBerkas();
-                  setItemSearch(e.target.value);
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
                 }}
                 placeholder="Cari Berkas"
                 className="inert:shadow-2xl border border-gray-200 h-10 rounded-lg px-2 outline-0"
@@ -108,7 +69,10 @@ export default function Unduhan() {
                 name=""
                 id=""
                 className="border border-gray-200 h-10 rounded-lg px-2 outline-0"
-                onChange={(e) => setViewPerPage(parseInt(e.target.value))}
+                onChange={(e) => {
+                  setViewPerPage(parseInt(e.target.value));
+                  setCurrentPage(1);
+                }}
               >
                 <option value="5">5</option>
                 <option value="10">10</option>
@@ -116,8 +80,8 @@ export default function Unduhan() {
               </select>
             </div>
             <div className="flex gap-5 items-center border-t border-gray-200 pt-2 text-gray-500 md:justify-between">
-              <h1 className="">Jumlah Berkas : {berkas.length}</h1>
-              <h1>Halaman {currentPage} : dari {Math.ceil(berkas.length / viewPerPage)}</h1>
+              <h1 className="">Jumlah Berkas : {filteredBerkas.length}</h1>
+              <h1>Halaman {currentPage} : dari {totalPages}</h1>
             </div>
           </div>
 
@@ -132,14 +96,14 @@ export default function Unduhan() {
             </thead>
 
             <tbody>
-              {currentData.slice(0, viewPerPage).map((item, index) => (
+              {currentData.map((item, index) => (
                 <tr
                 key={item.id}
                   className={`${
                     index % 2 === 0 ? "bg-white" : "bg-purple-300 bg-opacity-50"
                   }`}
                 >
-                  <td className="text-center">{startIndex +index + 1}</td>
+                  <td className="text-center">{startIndex + index + 1}</td>
                   <td>{item.title}</td>
                   <td className="text-center py-4">
                     <a href={item.filepath}>Unduh</a>
@@ -150,18 +114,21 @@ export default function Unduhan() {
           </table>
           <div className="w-full h-16 border rounded-b-lg border-purple-400 mb-10 flex justify-between px-5 items-center gap-2">
             <h1 className="text-gray-600">
-              Total Page: {Math.ceil(berkas.length / viewPerPage)}{" "}
+              Total Page: {totalPages}{" "}
             </h1>
             <div className="flex h-full items-center text-purple-700 font-bold">
-              <button onClick={() => setCurrentPage(currentPage - 1)}>
+              <button 
+                onClick={() => setCurrentPage(currentPage - 1)}
+                disabled={currentPage <= 1}
+              >
               <ChevronLeft className="w-4 h-4" />
               </button>
-              {[...Array(Math.ceil(berkas.length / viewPerPage))].map(
+              {[...Array(totalPages)].map(
                 (_, i) =>{
                    const page = i + 1;
                       if (
                         page === 1 ||
-                        page === Math.ceil(berkas.length / viewPerPage) ||
+                        page === totalPages ||
                         (page >= currentPage - 2 && page <= currentPage + 2)
                       ) {
                         return (
@@ -190,7 +157,10 @@ export default function Unduhan() {
                       return null;
                 }
               )}
-              <button onClick={() => setCurrentPage(currentPage + 1)}>
+              <button 
+                onClick={() => setCurrentPage(currentPage + 1)}
+                disabled={currentPage >= totalPages}
+              >
               <ChevronRight className="w-4 h-4" />
               </button>
             </div>
@@ -200,3 +170,29 @@ export default function Unduhan() {
     </div>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  try {
+    const [berkas, identitas] = await Promise.all([
+      prisma.berkas.findMany({
+        orderBy: { uploadat: "desc" },
+      }),
+      prisma.identitas.findMany(),
+    ]);
+
+    return {
+      props: {
+        berkas: JSON.parse(JSON.stringify(berkas)),
+        identitas: JSON.parse(JSON.stringify(identitas)),
+      },
+    };
+  } catch (error) {
+    console.error("Error fetching unduhan:", error);
+    return {
+      props: {
+        berkas: [],
+        identitas: [],
+      },
+    };
+  }
+};

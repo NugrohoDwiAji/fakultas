@@ -5,14 +5,7 @@ import FileDropzone from "@/components/admin/elements/FileDropZone";
 import axios from "axios";
 import { format } from "date-fns";
 import SuccessAlert from "@/components/cards/AlertSucces";
-
-type DataBerita = {
-  id: string;
-  title: string;
-  description: string;
-  filepath: string;
-  uploudat: string;
-};
+import { BeritaType } from "@/types";
 
 type PushData = {
   title: string;
@@ -22,9 +15,9 @@ type PushData = {
 
 export default function Berita() {
   const [isInput, setIsInput] = useState(false);
-  const [dataBerita, setDataBerita] = useState<DataBerita[]>([]);
+  const [dataBerita, setDataBerita] = useState<BeritaType[]>([]);
   const [showAlert, setShowAlert] = useState(false);
-  const [pushData, setPushData] = useState<PushData>({
+  const [pushData, setPushData] = useState({
     title: "",
     description: "",
     tanggal: new Date(),
@@ -34,7 +27,7 @@ export default function Berita() {
   const handleGetBerita = async () => {
     try {
       const result = await axios.get("/api/berita");
-      setDataBerita(result.data);
+      setDataBerita(result.data.data || []);
     } catch (error) {
       console.log(error);
     }
@@ -45,16 +38,19 @@ export default function Berita() {
       title: pushData.title,
       description: pushData.description,
       file: file,
-      tanggal: pushData.tanggal
+      tanggal: pushData.tanggal,
     };
     try {
-       await axios.post("/api/berita", data, {
+      const result = await axios.post("/api/berita", data, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
+      setDataBerita([...dataBerita, result.data.data]);
       setShowAlert(true);
-      window.location.reload();
+      setIsInput(false);
+      setPushData({ title: "", description: "", tanggal: new Date() });
+      setFile(null);
     } catch (error) {
       console.log(error);
     }
@@ -63,8 +59,8 @@ export default function Berita() {
   const handleDeleteBerita = async (id: string) => {
     try {
       await axios.delete(`/api/beritaDetails?id=${id}`);
+      setDataBerita(dataBerita.filter((item) => item.id !== id));
       setShowAlert(true);
-      window.location.reload();
     } catch (error) {
       console.log(error);
     }

@@ -6,22 +6,12 @@ import { usePathname } from "next/navigation";
 import classnames from "classnames";
 import axios from "axios";
 import Image from "next/image";
+import { IdentitasType, ProdiType } from "@/types";
 
-type IdentitasType = {
-  id: string;
-  name: string;
-  value: string;
-};
 type Props = {
   isScroll: boolean;
 };
-type ProdiType = {
-  id: string;
-  nama: string;
-  link: string;
-};
 
-// Tipe yang diinginkan setelah transformasi
 type TransformedProdiType = {
   id: string;
   name: string;
@@ -32,30 +22,31 @@ export default function Header({ isScroll }: Props) {
   const [isActive, setIsActive] = useState(false);
   const [subActive, setsubActive] = useState<string | null>(null);
   const currentPath = usePathname();
-  const [identitas, setIdentitas] = useState<IdentitasType[] | null>([]);
-  const [prodi, setProdi] = useState<TransformedProdiType[] | null>([]);
+  const [identitas, setIdentitas] = useState<IdentitasType[]>([]);
+  const [prodi, setProdi] = useState<TransformedProdiType[]>([]);
 
   const handleGetProdi = async () => {
     try {
-      const result = await axios.get<ProdiType[]>("/api/prodi");
-      const transformedData: TransformedProdiType[] = result.data.map(
+      const result = await axios.get<{ success: boolean; data: ProdiType[] }>("/api/prodi");
+      const transformedData: TransformedProdiType[] = (result.data.data || []).map(
         (item) => ({
           id: item.id,
-          name: item.nama, // Mengubah 'nama' menjadi 'name'
-          url: item.link, // Mengubah 'link' menjadi 'url'
+          name: item.nama,
+          url: item.link,
         })
       );
       setProdi(transformedData);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
+
   const handleGetIdentitas = async () => {
     try {
       const result = await axios.get("/api/identitas");
-      setIdentitas(result.data);
+      setIdentitas(result.data.data || []);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
   const toggleSubMenu = (submenu: string | null) => {

@@ -22,7 +22,7 @@ const [identitas, setIdentitas] = useState<IdentitasType[] | null>([])
   const handleGetIdentitas = async () => {
     try {
       const result = await axios.get("/api/identitas");
-      setIdentitas(result.data);
+      setIdentitas(result.data.data || []);
     } catch (error) {
       console.log(error)
     }
@@ -31,7 +31,7 @@ const [identitas, setIdentitas] = useState<IdentitasType[] | null>([])
   const handleGetContent = async () => {
     try {
       const result = await axios.get("/api/content");
-      setdataContent(result.data);
+      setdataContent(result.data.data || []);
     } catch {}
   };
 

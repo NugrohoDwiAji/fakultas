@@ -12,35 +12,28 @@ import {
 import AdminLayout from "@/components/layouts/AdminLayout";
 import axios from "axios";
 import FormFaq from "@/components/admin/cards/FormFaq";
-
-type QuestionAnswer = {
-  id: string;
-  question: string;
-  answer: string;
-  created_at: string;
-};
+import { FaqType } from "@/types";
 
 export default function QuestionAnswerTable() {
-  const [allData, setAllData] = useState<QuestionAnswer[]>([]);
-  const [filteredData, setFilteredData] = useState<QuestionAnswer[]>([]);
+  const [allData, setAllData] = useState<FaqType[]>([]);
+  const [filteredData, setFilteredData] = useState<FaqType[]>([]);
   const [isDelete, setIsDelete] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
-  const [selectedItem, setSelectedItem] = useState<QuestionAnswer | null>(null);
+  const [selectedItem, setSelectedItem] = useState<FaqType | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Fungsi untuk fetch data - gunakan useCallback untuk mencegah re-render berlebihan
   const handleGetItem = useCallback(async () => {
-    if (loading) return; // Prevent multiple simultaneous requests
+    if (loading) return;
     
     try {
       setLoading(true);
       setError(null);
       const result = await axios.get("/api/faq");
-      setAllData(result.data);
+      setAllData(result.data.data || []);
     } catch (error) {
       console.error("Error fetching FAQ data:", error);
       setError("Gagal memuat data FAQ");
@@ -49,13 +42,11 @@ export default function QuestionAnswerTable() {
     }
   }, [loading]);
 
-  // useEffect untuk fetch data hanya sekali saat component mount
   useEffect(() => {
     handleGetItem();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Empty dependency array - hanya jalankan sekali
+  }, []);
 
-  // useEffect terpisah untuk filtering - tidak memanggil handleGetItem lagi
   useEffect(() => {
     const filtered = allData.filter(
       (item) =>
@@ -64,32 +55,28 @@ export default function QuestionAnswerTable() {
     );
     setFilteredData(filtered);
     setCurrentPage(1);
-  }, [searchTerm, allData]); // Hanya bergantung pada searchTerm dan allData
+  }, [searchTerm, allData]);
 
-  // Pagination logic
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentData = filteredData.slice(startIndex, endIndex);
 
-  const handleView = (item: QuestionAnswer) => {
+  const handleView = (item: FaqType) => {
     setSelectedItem(item);
     setShowModal(true);
   };
 
-  const handleEdit = (item: QuestionAnswer) => {
+  const handleEdit = (item: FaqType) => {
     alert(`Edit item dengan ID: ${item.id}`);
   };
 
-  const handleDelete = async (item: QuestionAnswer) => {
+  const handleDelete = async (item: FaqType) => {
     if (confirm(`Yakin ingin menghapus pertanyaan: "${item.question}"?`)) {
       try {
         setLoading(true);
         await axios.delete(`/api/faq?id=${item.id}`);
-        
-        // Update state lokal tanpa perlu fetch ulang
         setAllData(prevData => prevData.filter(data => data.id !== item.id));
-        
         alert(`Item dengan ID ${item.id} berhasil dihapus`);
       } catch (error) {
         console.error("Error deleting item:", error);
@@ -100,13 +87,16 @@ export default function QuestionAnswerTable() {
     }
   };
 
+  const handleSaveFaq = (newItems: FaqType[]) => {
+    setAllData([...allData, ...newItems]);
+  };
+
   const truncateText = (text: string, maxLength: number) => {
     return text.length > maxLength
       ? text.substring(0, maxLength) + "..."
       : text;
   };
 
-  // Fungsi untuk refresh data manual jika diperlukan
   const handleRefresh = () => {
     handleGetItem();
   };
@@ -447,6 +437,7 @@ export default function QuestionAnswerTable() {
         {isDelete && (
           <FormFaq 
             cancel={() => setIsDelete(!isDelete)}
+            onSave={handleSaveFaq}
           />
         )}
       </div>

@@ -1,27 +1,21 @@
 import React,{useEffect, useState} from "react";
 import { Phone, Mail, Facebook, Instagram, Youtube } from "lucide-react";
 import axios from 'axios';
+import { IdentitasType } from "@/types";
 
-type IdentitasType = {
-  id: string;
-  name: string;
-  value: string;
-};
 type Props = {
   isScroll: boolean;
 };
 
 export default function ContactHeader({ isScroll }: Props) {
- const [identitas, setIdentitas] = useState<IdentitasType[] | null>([])
+ const [identitas, setIdentitas] = useState<IdentitasType[]>([])
 
-
-
-    const handleGetIdentitas = async () => {
+  const handleGetIdentitas = async () => {
     try {
       const result = await axios.get("/api/identitas");
-      setIdentitas(result.data);
+      setIdentitas(result.data.data || []);
     } catch (error) {
-      console.log(error)
+      console.error(error);
     }
   };
 

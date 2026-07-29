@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import ButtonPrimary from "../elements/ButtonPrimary";
 import axios from "axios";
+import { ContentType } from "@/types";
 
 type ModalEditProps = {
   onClose: () => void;
   title: string;
-  onSave: () => void;
+  onSave: (item: ContentType) => void;
   defaultValue: string;
   id: string;
 };
@@ -13,6 +14,7 @@ type ModalEditProps = {
 export default function ModalEdit({
   onClose,
   title,
+  onSave,
   defaultValue,
   id,
 }: ModalEditProps) {
@@ -20,11 +22,11 @@ export default function ModalEdit({
 
   const handleUpdate = async () => {
     try {
-      await axios.put(`/api/contentDetails?id=${id}`, {
+      const result = await axios.put(`/api/contentDetails?id=${id}`, {
         title: title,
         value: value,
       });
-      document.location.reload();
+      onSave(result.data);
     } catch (error) {
       console.log(error);
     }
@@ -66,7 +68,6 @@ export default function ModalEdit({
             ClassName="bg-green-600 text-white"
             onClick={() => {
               handleUpdate();
-              onClose();
             }}
           >
             Save

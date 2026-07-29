@@ -6,6 +6,7 @@ import ButtonPrimary from "@/components/elements/ButtonPrimary";
 import { useIsDesktop } from "@/components/customhooks/hook";
 import axios from "@/components/customhooks/axios";
 import { CircleAlert } from 'lucide-react';
+import { useRouter } from "next/router";
 
 type DataLogin = {
   username: string;
@@ -19,15 +20,13 @@ export default function Login() {
     password: "",
   })
   const [isLogin, setIsLogin] = useState(false)
+  const router = useRouter();
 
 
 const handleLogin = async() => {
   try {
      await axios.post('/login', kredensil);
-
-      window.location.href = '/admin/dashboard';
-   
-  
+     router.push('/admin/dashboard');
   } catch (error) {
     console.log(error)
     setIsLogin(true)

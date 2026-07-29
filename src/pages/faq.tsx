@@ -1,48 +1,16 @@
-import React,{useEffect, useState} from 'react'
-import axios from 'axios';
-import CardFaq from '@/components/cards/CardFaq';
-import Image from 'next/image';
+import React from "react";
+import CardFaq from "@/components/cards/CardFaq";
+import Image from "next/image";
+import { GetServerSideProps } from "next";
+import prisma from "@/services/prisma";
+import { IdentitasType, FaqType } from "@/types";
 
+interface FaqProps {
+  identitas: IdentitasType[];
+  dataFaq: FaqType[];
+}
 
-type IdentitasType = {
-  id: string;
-  name: string;
-  value: string;
-};
-
-type QuestionAnswer = {
-  id: string;
-  question: string;
-  answer: string;
-  created_at: string;
-};
-
-const Faq = () => {
-  const [identitas, setIdentitas] = useState<IdentitasType[] | null>([]);
-   const [dataFaq, setDataFaq] = useState<QuestionAnswer[]>([]);
-
-  const handleGetIdentitas = async () => {
-    try {
-      const result = await axios.get("/api/identitas");
-      setIdentitas(result.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-    const handleGetFaq = async () => {
-    try {
-      const result = await axios.get("/api/faq");
-      setDataFaq(result.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    handleGetIdentitas();
-    handleGetFaq();
-  }, []);
+const Faq = ({ identitas, dataFaq }: FaqProps) => {
     return (
       <div className="min-h-screen">
         <div className="relative h-80 md:h-96 lg:h-[35rem]">
@@ -80,3 +48,29 @@ const Faq = () => {
 }
 
 export default Faq
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  try {
+    const [identitas, dataFaq] = await Promise.all([
+      prisma.identitas.findMany(),
+      prisma.faq.findMany({
+        orderBy: { created_at: "desc" },
+      }),
+    ]);
+
+    return {
+      props: {
+        identitas: JSON.parse(JSON.stringify(identitas)),
+        dataFaq: JSON.parse(JSON.stringify(dataFaq)),
+      },
+    };
+  } catch (error) {
+    console.error("Error fetching faq:", error);
+    return {
+      props: {
+        identitas: [],
+        dataFaq: [],
+      },
+    };
+  }
+};

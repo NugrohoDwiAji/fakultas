@@ -3,16 +3,13 @@ import AdminLayout from "@/components/layouts/AdminLayout";
 import FileDropzone from "@/components/admin/elements/FileDropZone";
 import ButtonPrimary from "@/components/elements/ButtonPrimary";
 import axios from "axios";
+import { BerkasType } from "@/types";
 
-type data = {
-  id: string;
-  title: string;
-};
 export default function Berkas() {
   const [confirm, setconfirm] = useState(false);
   const [files, setFiles] = useState<File | null>(null);
   const [title, setTitle] = useState("");
-  const [data, setdata] = useState<data[]>([]);
+  const [data, setdata] = useState<BerkasType[]>([]);
   const [isInput, setIsInput] = useState(false);
   const [isUpdate, setIsUpdate] = useState({
     status: false,
@@ -28,18 +25,21 @@ export default function Berkas() {
   };
 
   const handleSave = async () => {
-    const data = {
+    const postData = {
       title: title,
       file: files,
     };
     try {
-    await axios.post("/api/berkas", data, {
+      const result = await axios.post("/api/berkas", postData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-
-      document.location.reload();
+      setdata([...data, result.data.data]);
+      setTitle("");
+      setFiles(null);
+      setconfirm(false);
+      setIsInput(false);
     } catch (error) {
       console.log("eror", error);
     }
@@ -48,7 +48,7 @@ export default function Berkas() {
   const handleDeleteItem = async (id: string) => {
     try {
       await axios.delete(`/api/berkasDetails?id=${id}`);
-      document.location.reload();
+      setdata(data.filter((item) => item.id !== id));
     } catch (error) {
       console.log("eror", error);
     }
@@ -58,24 +58,29 @@ export default function Berkas() {
      
     try {
       const result = await axios.get("/api/berkas");
-      setdata(result.data);
+      setdata(result.data.data || []);
     } catch (error) {
       console.log(error);
     }
   };
 
   const handleUpdate = async (id: string) => {
-    const data = {
+    const postData = {
       title: title,
       file: files,
     };
     try {
-       await axios.put(`/api/berkasDetails?id=${id}`, data, {
+      const result = await axios.put(`/api/berkasDetails?id=${id}`, postData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-      document.location.reload();
+      setdata(data.map((item) => (item.id === id ? result.data.data : item)));
+      setTitle("");
+      setFiles(null);
+      setconfirm(false);
+      setIsInput(false);
+      setIsUpdate({ status: false, id: "" });
     } catch (error) {
       console.log("eror", error);
     }
@@ -87,10 +92,10 @@ export default function Berkas() {
         setIsUpdate((pref) => ({
         ...pref,
         status: true,
-        id: result.data.id,
+        id: result.data.data.id,
       }));
       setIsInput(true);
-      setTitle(result.data.title);
+      setTitle(result.data.data.title);
     } catch (error) {
       console.log(error);
     }
@@ -146,7 +151,11 @@ export default function Berkas() {
           </ButtonPrimary>
           <ButtonPrimary
             onClick={() => {
-              document.location.reload();
+              setTitle("");
+              setFiles(null);
+              setconfirm(false);
+              setIsInput(false);
+              setIsUpdate({ status: false, id: "" });
             }}
             ClassName="bg-red-600 text-white"
           >

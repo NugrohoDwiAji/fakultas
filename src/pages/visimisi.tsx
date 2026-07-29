@@ -1,51 +1,22 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React from "react";
 import Image from "next/image";
+import { GetServerSideProps } from "next";
+import prisma from "@/services/prisma";
+import { ContentType, IdentitasType } from "@/types";
 
-type ContentType = {
-  id: string;
-  title: string;
-  value: string;
-};
+interface VisimisiProps {
+  content: ContentType[];
+  identitas: IdentitasType[];
+}
 
-type IdentitasType = {
-  id: string;
-  name: string;
-  value: string;
-};
-
-export default function Visimisi() {
-  const [content, setContent] = useState<ContentType[] | null>([]);
-  const [identitas, setIdentitas] = useState<IdentitasType[] | null>([]);
-
-  const handleGetIdentitas = async () => {
-    try {
-      const result = await axios.get("/api/identitas");
-      setIdentitas(result.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const handleGetContent = async () => {
-    try {
-      const result = await axios.get("/api/content");
-      setContent(result.data);
-    } catch {}
-  };
-
+export default function Visimisi({ content, identitas }: VisimisiProps) {
   const misiContent =
     content?.find((item: ContentType) => item.title === "Misi")?.value || "";
 
   const formattedContent = misiContent
-      .split(/(?=\d+\.)/) // Pisahkan sebelum angka
-  .map(item => item.replace(/^\d+\.\s*/, '').trim()) // Hapus nomor dan spasi setelahnya
-  .filter(item => item.length > 0); // Hapus item kosong jika ada
-
-  useEffect(() => {
-    handleGetIdentitas();
-    handleGetContent();
-  }, []);
+      .split(/(?=\d+\.)/)
+  .map(item => item.replace(/^\d+\.\s*/, '').trim())
+  .filter(item => item.length > 0);
 
   return (
     <div className="">
@@ -98,3 +69,27 @@ export default function Visimisi() {
     </div>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  try {
+    const [content, identitas] = await Promise.all([
+      prisma.content.findMany(),
+      prisma.identitas.findMany(),
+    ]);
+
+    return {
+      props: {
+        content: JSON.parse(JSON.stringify(content)),
+        identitas: JSON.parse(JSON.stringify(identitas)),
+      },
+    };
+  } catch (error) {
+    console.error("Error fetching visimisi:", error);
+    return {
+      props: {
+        content: [],
+        identitas: [],
+      },
+    };
+  }
+};

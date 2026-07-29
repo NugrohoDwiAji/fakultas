@@ -8,24 +8,20 @@ import { Facebook } from "lucide-react";
 import { Instagram } from "lucide-react";
 import axios from "axios";
 import Image from "next/image";
-
-type IdentitasType = {
-  id: string;
-  name: string;
-  value: string;
-};
+import { IdentitasType } from "@/types";
 
 const Footer = () => {
-  const [identitas, setIdentitas] = useState<IdentitasType[] | null>([]);
+  const [identitas, setIdentitas] = useState<IdentitasType[]>([]);
 
   const handleGetIdentitas = async () => {
     try {
       const result = await axios.get("/api/identitas");
-      setIdentitas(result.data);
+      setIdentitas(result.data.data || []);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
+
   useEffect(() => {
     handleGetIdentitas();
   }, []);
@@ -66,9 +62,6 @@ const Footer = () => {
     },
   ];
 
-  useEffect(() => {
-    handleGetIdentitas();
-  }, []);
   return (
     <footer className="bg-purple-900 text-white flex flex-col items-center">
       <div className="md:flex md:gap-16 px-7 pt-5 md:pt-14 md:px-10 pb-10 lg:flex gap-28 lg:gap-0  lg:text-xl  lg:w-full justify-center  ">

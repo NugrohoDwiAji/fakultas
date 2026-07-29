@@ -10,7 +10,6 @@ export const config = {
   },
 };
 
-// Helper untuk memastikan folder uploads ada
 const createUploadDir = (dir: string) => {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
@@ -22,39 +21,61 @@ const handleDeleteMethod = async (
   res: NextApiResponse
 ) => {
   const { id } = req.query;
+
+  if (!id) {
+    return res.status(400).json({ success: false, error: "ID is required" });
+  }
+
   try {
+    const existing = await prisma.berkas.findUnique({
+      where: { id: id as string },
+    });
+
+    if (existing?.filepath) {
+      const oldPath = path.join(process.cwd(), "public", existing.filepath);
+      if (fs.existsSync(oldPath)) {
+        fs.unlinkSync(oldPath);
+      }
+    }
+
     const result = await prisma.berkas.delete({
       where: { id: id as string },
     });
-    res.status(200).json(result);
-  } catch {
-    res.status(500).json({ error: "Error Deleting content" });
+    res.status(200).json({ success: true, data: result, message: "Berkas deleted" });
+  } catch (error) {
+    console.error("Error deleting berkas:", error);
+    res.status(500).json({ success: false, error: "Error deleting berkas" });
   }
 };
 
 const handleGetById = async (req: NextApiRequest, res: NextApiResponse) => {
   const { name } = req.query;
+
+  if (!name) {
+    return res.status(400).json({ success: false, error: "Name query is required" });
+  }
+
   try {
     const result = await prisma.berkas.findMany({
-      where :{
-        title :{
-          contains : name as string,
-        }
-      }
-    })
-    res.status(200).json(result);
-  } catch {
-    res.status(500).json({ error: "Error fetching content" });
+      where: {
+        title: { contains: name as string },
+      },
+    });
+    res.status(200).json({ success: true, data: result });
+  } catch (error) {
+    console.error("Error fetching berkas:", error);
+    res.status(500).json({ success: false, error: "Error fetching berkas" });
   }
 };
 
 const handlePutMethod = async (req: NextApiRequest, res: NextApiResponse) => {
-  createUploadDir(path.join(process.cwd(), "/public/berkas"));
+  const uploadPath = path.join(process.cwd(), "public", "uploads", "berkas");
+  createUploadDir(uploadPath);
 
   const form = formidable({
-    uploadDir: path.join(process.cwd(), "public", "berkas"),
+    uploadDir: uploadPath,
     filename: (_, __, part) => {
-      return `${part.originalFilename}`;
+      return `${Date.now()}-${part.originalFilename}`;
     },
   });
 
@@ -72,21 +93,24 @@ const handlePutMethod = async (req: NextApiRequest, res: NextApiResponse) => {
       });
     });
 
-    if (!files.file)
-      return res.status(400).json({ error: "File tidak ditemukan" });
+    if (!files.file) {
+      return res.status(400).json({ success: false, error: "File is required" });
+    }
 
-    const file = Array.isArray(files.file) ? files.file[0] : files.file;
-    const filePath = `/berkas/${file?.originalFilename}`;
-    const titletmp = fields.title?.toString();
-    const title = titletmp || "utitled";
     const { id } = req.query;
 
-    // ✅ Ambil data lama dari database
+    if (!id) {
+      return res.status(400).json({ success: false, error: "ID is required" });
+    }
+
+    const file = Array.isArray(files.file) ? files.file[0] : files.file;
+    const filePath = `/uploads/berkas/${path.basename(file.filepath)}`;
+    const title = fields.title?.toString() || "untitled";
+
     const existing = await prisma.berkas.findUnique({
       where: { id: id as string },
     });
 
-    // ✅ Hapus file lama jika ada
     if (existing?.filepath) {
       const oldPath = path.join(process.cwd(), "public", existing.filepath);
       if (fs.existsSync(oldPath)) {
@@ -97,26 +121,26 @@ const handlePutMethod = async (req: NextApiRequest, res: NextApiResponse) => {
     const saved = await prisma.berkas.update({
       where: { id: id as string },
       data: {
-        title: title,
+        title,
         filepath: filePath,
       },
     });
-    res.status(202).json({ Message: "Update Succes", saved });
+    res.status(200).json({ success: true, data: saved, message: "Berkas updated" });
   } catch (error) {
-    console.error("Error saving file:", error);
-    return res.status(500).json({ error: "Error saving file" });
+    console.error("Error updating berkas:", error);
+    res.status(500).json({ success: false, error: "Error updating berkas" });
   }
 };
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method === "DELETE") {
-    return handleDeleteMethod(req, res);
-  }
   if (req.method === "GET") {
     return handleGetById(req, res);
   }
-  if (req.method === "PUT") return handlePutMethod(req, res);
-  else {
-    res.status(405).json({ message: "Method not allowed" });
+  if (req.method === "PUT") {
+    return handlePutMethod(req, res);
   }
+  if (req.method === "DELETE") {
+    return handleDeleteMethod(req, res);
+  }
+  res.status(405).json({ success: false, error: "Method not allowed" });
 }

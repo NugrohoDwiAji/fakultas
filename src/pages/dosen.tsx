@@ -1,54 +1,17 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React from "react";
 import CardDosen from "@/components/cards/CardDosen";
 import Image from "next/image";
+import { GetServerSideProps } from "next";
+import prisma from "@/services/prisma";
+import { IdentitasType, DosenType } from "@/types";
 
-type IdentitasType = {
-  id: string;
-  name: string;
-  value: string;
-};
+interface DosenProps {
+  identitas: IdentitasType[];
+  dosenIlkom: DosenType[];
+  dosenSasing: DosenType[];
+}
 
-type Data = {
-  id: string;
-  nama: string;
-  nik: string;
-  foto: string;
-  uploadat: string;
-};
-
-export default function Dosen() {
-  const [identitas, setIdentitas] = useState<IdentitasType[] | null>([]);
-  const [dosenSasing, setDosenSasing] = useState<Data[]>([]);
-  const [dosenIlkom, setDosenIlkom] = useState<Data[]>([]);
-
-  const handleGetIdentitas = async () => {
-    try {
-      const result = await axios.get("/api/identitas");
-      setIdentitas(result.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const handleGetByHomebase = async () => {
-    const ilkom = "S2 Ilmu Komputer";
-    const sasing = "S2 Sastra Inggris";
-    try {
-      const result = await axios.get(`/api/dosenDetails?homebase=${ilkom}`);
-      setDosenIlkom(result.data);
-      const result2 = await axios.get(`/api/dosenDetails?homebase=${sasing}`);
-      setDosenSasing(result2.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    handleGetIdentitas();
-    handleGetByHomebase()
-  }, []);
-
+export default function Dosen({ identitas, dosenIlkom, dosenSasing }: DosenProps) {
   return (
     <div className="min-h-screen">
       <div className="relative h-80 md:h-96 lg:h-[35rem]">
@@ -102,3 +65,36 @@ export default function Dosen() {
     </div>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  try {
+    const [identitas, dosenIlkom, dosenSasing] = await Promise.all([
+      prisma.identitas.findMany(),
+      prisma.dosen.findMany({
+        where: { jenis_dosen: "S2 Ilmu Komputer" },
+        orderBy: { nama: "asc" },
+      }),
+      prisma.dosen.findMany({
+        where: { jenis_dosen: "S2 Sastra Inggris" },
+        orderBy: { nama: "asc" },
+      }),
+    ]);
+
+    return {
+      props: {
+        identitas: JSON.parse(JSON.stringify(identitas)),
+        dosenIlkom: JSON.parse(JSON.stringify(dosenIlkom)),
+        dosenSasing: JSON.parse(JSON.stringify(dosenSasing)),
+      },
+    };
+  } catch (error) {
+    console.error("Error fetching dosen:", error);
+    return {
+      props: {
+        identitas: [],
+        dosenIlkom: [],
+        dosenSasing: [],
+      },
+    };
+  }
+};

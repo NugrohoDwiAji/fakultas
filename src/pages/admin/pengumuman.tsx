@@ -4,18 +4,12 @@ import ButtonPrimary from "@/components/elements/ButtonPrimary";
 import FileDropzone from "@/components/admin/elements/FileDropZone";
 import axios from "axios";
 import SuccessAlert from "@/components/cards/AlertSucces";
-
-type Data = {
-  id: string;
-  title: string;
-  file_path: string;
-  uploadat: string;
-};
+import { PengumumanType } from "@/types";
 
 export default function Pengumuman() {
   const [isInput, setIsInput] = useState(false);
   const [title, setTitle] = useState("");
-  const [datas, setDatas] = useState<Data[] | null>(null);
+  const [datas, setDatas] = useState<PengumumanType[]>([]);
   const [file, setFile] = useState<File | null>(null);
   const [isConfirm, setisConfirm] = useState(false);
   const [uploadat, setUploadat] = useState<Date>();
@@ -28,8 +22,6 @@ export default function Pengumuman() {
   const handleFileDrop = (files: File) => {
     setisConfirm(true);
     setFile(files);
-
-    // Lanjutkan upload ke server atau simpan ke state
   };
 
   const handleSave = async () => {
@@ -39,13 +31,14 @@ export default function Pengumuman() {
       uploadat: uploadat,
     };
     try {
-      await axios.post("/api/pengumuman", data, {
+      const result = await axios.post("/api/pengumuman", data, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
+      setDatas([...datas, result.data.data]);
       setShowAlert(true);
-      document.location.reload();
+      resetForm();
     } catch (error) {
       console.log("ini error", error);
     }
@@ -54,7 +47,7 @@ export default function Pengumuman() {
   const handleGetMethode = async () => {
     try {
       const result = await axios.get("/api/pengumuman");
-      setDatas(result.data);
+      setDatas(result.data.data || []);
     } catch (error) {
       console.log("error", error);
     }
@@ -66,12 +59,13 @@ export default function Pengumuman() {
       file: file,
     };
     try {
-      await axios.put(`/api/pengumumanDetails?id=${id}`, data, {
+      const result = await axios.put(`/api/pengumumanDetails?id=${id}`, data, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-      document.location.reload();
+      setDatas(datas.map((item) => (item.id === id ? result.data.data : item)));
+      resetForm();
     } catch (error) {
       console.log("eror", error);
     }
@@ -84,11 +78,11 @@ export default function Pengumuman() {
       setIsUpdate((pref) => ({
         ...pref,
         status: true,
-        id: result.data.id,
+        id: result.data.data.id,
       }));
-      setTitle(result.data.title);
-      setFile(result.data.file_path);
-      setUploadat(result.data.uploadat);
+      setTitle(result.data.data.title);
+      setFile(result.data.data.file_path);
+      setUploadat(result.data.data.uploadat);
     } catch (error) {
       console.log("error", error);
     }
@@ -97,10 +91,19 @@ export default function Pengumuman() {
   const handleDelete = async (id: string) => {
     try {
       await axios.delete(`/api/pengumuman?id=${id}`);
-      document.location.reload();
+      setDatas(datas.filter((item) => item.id !== id));
     } catch (error) {
       console.log("error", error);
     }
+  };
+
+  const resetForm = () => {
+    setTitle("");
+    setFile(null);
+    setUploadat(undefined);
+    setisConfirm(false);
+    setIsInput(false);
+    setIsUpdate({ status: false, id: "" });
   };
 
   useEffect(() => {
@@ -152,9 +155,7 @@ export default function Pengumuman() {
                 Simpan
               </ButtonPrimary>
               <ButtonPrimary
-                onClick={() => {
-                  document.location.reload();
-                }}
+                onClick={() => resetForm()}
                 ClassName="bg-red-600 text-white"
               >
                 Batal

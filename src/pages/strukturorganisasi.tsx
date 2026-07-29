@@ -1,28 +1,15 @@
 
-import React,{useEffect, useState} from "react";
-import axios from 'axios';
-import Image from 'next/image';
+import React from "react";
+import Image from "next/image";
+import { GetServerSideProps } from "next";
+import prisma from "@/services/prisma";
+import { IdentitasType } from "@/types";
 
-type IdentitasType = {
-  id: string;
-  name: string;
-  value: string;
-};
-export default function StrukturOrganisasi() {
-   const [identitas, setIdentitas] = useState<IdentitasType[] | null>([])
+interface StrukturOrganisasiProps {
+  identitas: IdentitasType[];
+}
 
-  const handleGetIdentitas = async () => {
-    try {
-      const result = await axios.get("/api/identitas");
-      setIdentitas(result.data);
-    } catch (error) {
-      console.log(error)
-    }
-  };
-  useEffect(() => {
-    handleGetIdentitas();
-  }, [])
-  
+export default function StrukturOrganisasi({ identitas }: StrukturOrganisasiProps) {
   return (
     <div>
       {/* jumbotron */}
@@ -51,3 +38,22 @@ export default function StrukturOrganisasi() {
     </div>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  try {
+    const identitas = await prisma.identitas.findMany();
+
+    return {
+      props: {
+        identitas: JSON.parse(JSON.stringify(identitas)),
+      },
+    };
+  } catch (error) {
+    console.error("Error fetching struktur organisasi:", error);
+    return {
+      props: {
+        identitas: [],
+      },
+    };
+  }
+};

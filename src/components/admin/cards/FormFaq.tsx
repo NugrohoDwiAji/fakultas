@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Plus, Trash2, Save, Minus } from "lucide-react";
 import axios from "axios";
+import { FaqType } from "@/types";
 
 type Question = {
   id: number;
@@ -9,9 +10,10 @@ type Question = {
 };
 interface Fungsi {
   cancel: () => void;
+  onSave?: (items: FaqType[]) => void;
 }
 
-const FormFaq: React.FC<Fungsi> = ({ cancel }) => {
+const FormFaq: React.FC<Fungsi> = ({ cancel, onSave }) => {
   const [questions, setQuestions] = useState([
     { id: 1, question: "", answer: "" },
   ]);
@@ -38,8 +40,11 @@ const FormFaq: React.FC<Fungsi> = ({ cancel }) => {
       (q) => q.question.trim() && q.answer.trim()
     );
     try {
-      await axios.post("/api/faq", validQuestions);
-      window.location.reload()
+      const result = await axios.post("/api/faq", validQuestions);
+      if (onSave) {
+        onSave(result.data);
+      }
+      cancel();
     } catch (error) {
       console.log(error);
     }

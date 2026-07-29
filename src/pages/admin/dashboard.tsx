@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { PrismaClient } from "@prisma/client";
 import { GetServerSideProps } from "next";
 import AdminLayout from "@/components/layouts/AdminLayout";
 import Image from "next/image";
@@ -18,49 +17,33 @@ import Prodis from "@/components/datas/Prodi.json";
 import FileDropzone from "@/components/admin/elements/FileDropZone";
 import axios from "axios";
 import SuccessAlert from "@/components/cards/AlertSucces";
-
-type VisitData = {
-  data: { date: string; count: number }[];
-  date: string;
-  count: number;
-};
-
-type Identitas = {
-  id: string;
-  name: string;
-  value: string;
-};
-
-interface Prodi {
-  nama: string;
-  link: string;
-  visi:string;
-  misi:string
-}
-
-const prisma = new PrismaClient();
+import prisma from "@/services/prisma";
+import { VisitData, IdentitasType, ProdiType } from "@/types";
 
 export const getServerSideProps: GetServerSideProps = async () => {
-  const results = await prisma.$queryRaw<VisitData[]>`
+  const results = await prisma.$queryRaw<{ date: Date; count: bigint }[]>`
     SELECT DATE(visited_at) as date, COUNT(*) as count FROM Visit GROUP BY DATE(visited_at) ORDER BY date DESC LIMIT 14`;
   const data = results
     .map((item) => ({
       date: format(new Date(item.date), "yyyy-MM-dd"),
       count: Number(item.count),
     }))
-    .reverse(); // supaya urutan tanggal naik
+    .reverse();
 
   return { props: { data } };
 };
 
-export default function Dashboard({ data }: VisitData) {
+interface DashboardProps {
+  data: { date: string; count: number }[];
+}
+
+export default function Dashboard({ data }: DashboardProps) {
   const [canEdit, setcanEdit] = useState(false);
-  const [datas, setDatas] = useState<Identitas[]>([]);
+  const [datas, setDatas] = useState<IdentitasType[]>([]);
   const [organisasiImg, setOrganisasiImg] = useState<File | null>(null);
   const [showAlert, setShowAlert] = useState(false);
-  const [prodi, setProdi] = useState<Prodi[]>([]);
-  // State untuk menyimpan prodi yang dipilih
-  const [selectedProdi, setSelectedProdi] = useState<Prodi[]>([]);
+  const [prodi, setProdi] = useState<ProdiType[]>([]);
+  const [selectedProdi, setSelectedProdi] = useState<ProdiType[]>([]);
   const [dataUpdate, setDataUpdate] = useState([
     {
       name: "Nama Fakultas",
@@ -121,18 +104,19 @@ export default function Dashboard({ data }: VisitData) {
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const options = e.target.options;
-    const selectedOptions: Prodi[] = [];
+    const selectedOptions: ProdiType[] = [];
     for (let i = 0; i < options.length; i++) {
       if (options[i].selected) {
         const selectedProdi = Prodis.find(
           (item) => item.id.toString() === options[i].value
         );
         if (selectedProdi) {
-          const pushData = {
+          const pushData: ProdiType = {
+            id: "",
             nama: selectedProdi.name,
             link: selectedProdi.Link,
-            visi:"",
-            misi:""
+            visi: "",
+            misi: "",
           };
           selectedOptions.push(pushData);
         }
@@ -162,7 +146,7 @@ export default function Dashboard({ data }: VisitData) {
   const handleGetData = async () => {
     try {
       const result = await axios.get("/api/identitas");
-      setDatas(result.data);
+      setDatas(result.data.data || []);
     } catch (error) {
       console.log(error, "eror");
     }
@@ -196,7 +180,7 @@ export default function Dashboard({ data }: VisitData) {
   const handleGetProdi = async () => {
     try {
       const result = await axios.get("/api/prodi");
-      setProdi(result.data);
+      setProdi(result.data.data || []);
       
     } catch (error) {
       console.log(error, "eror");
@@ -470,7 +454,6 @@ export default function Dashboard({ data }: VisitData) {
               ClassName="bg-green-600 text-white hover:bg-white hover:text-green-600 hover:border-2 hover:border-green-600 ease-in-out duration-300 transition-all mt-5"
               onClick={() => {
                 setShowAlert(true);
-                window.location.reload();
               }}
             >
               Simpan Data

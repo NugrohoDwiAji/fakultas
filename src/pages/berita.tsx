@@ -1,34 +1,15 @@
 import React from "react";
-import { useState } from "react";
-import axios from "axios";
 import CardBerita from "@/components/cards/CardBerita";
-import { useEffect } from "react";
 import Image from "next/image";
+import { GetServerSideProps } from "next";
+import prisma from "@/services/prisma";
+import { BeritaType } from "@/types";
 
-type DataBerita = {
-  id: string;
-  title: string;
-  description: string;
-  filepath: string;
-  uploudat: string;
-};
+interface BeritaProps {
+  dataBerita: BeritaType[];
+}
 
-export default function Berita() {
-  const [dataBerita, setDataBerita] = useState<DataBerita[]>([]);
-
-  const handleGetBerita = async () => {
-    try {
-      const result = await axios.get("/api/berita");
-      setDataBerita(result.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    handleGetBerita();
-  }, []);
-
+export default function Berita({ dataBerita }: BeritaProps) {
   return (
     <div className="min-h-screen">
       <div className="relative h-80 md:h-96 lg:h-[28rem]">
@@ -70,3 +51,24 @@ export default function Berita() {
     </div>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  try {
+    const dataBerita = await prisma.berita.findMany({
+      orderBy: { uploudat: "desc" },
+    });
+
+    return {
+      props: {
+        dataBerita: JSON.parse(JSON.stringify(dataBerita)),
+      },
+    };
+  } catch (error) {
+    console.error("Error fetching berita:", error);
+    return {
+      props: {
+        dataBerita: [],
+      },
+    };
+  }
+};

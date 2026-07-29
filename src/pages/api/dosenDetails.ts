@@ -1,24 +1,29 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/services/prisma";
+import type { ApiResponse, DosenType } from "@/types";
 
+const handleGetMethod = async (req: NextApiRequest, res: NextApiResponse<ApiResponse<DosenType[]>>) => {
+  const { homebase } = req.query;
 
-const handleGetMethod = async (req: NextApiRequest, res: NextApiResponse) => {
-    const { homebase } = req.query;
-    try {
-        const result = await prisma.dosen.findMany({
-            where: { jenis_dosen: homebase as string },
-            orderBy: { create_at: 'desc' }
-        });
-        res.status(200).json(result);
-    } catch (error) {
-        res.status(500).json({ error});
-    }
+  if (!homebase) {
+    return res.status(400).json({ success: false, error: "homebase wajib diisi" });
+  }
+
+  try {
+    const result = await prisma.dosen.findMany({
+      where: { jenis_dosen: homebase as string },
+      orderBy: { create_at: "desc" },
+    });
+    return res.status(200).json({ success: true, data: result });
+  } catch (error) {
+    console.error("Error fetching dosen details:", error);
+    return res.status(500).json({ success: false, error: "Gagal mengambil data dosen" });
+  }
 };
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
-    if (req.method === "GET") {
-        return handleGetMethod(req, res);
-    } else {
-        res.status(405).json({ message: "Method not allowed" });
-    }
+export default function handler(req: NextApiRequest, res: NextApiResponse<ApiResponse>) {
+  if (req.method === "GET") {
+    return handleGetMethod(req, res);
+  }
+  return res.status(405).json({ success: false, error: "Method not allowed" });
 }

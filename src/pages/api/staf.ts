@@ -10,20 +10,22 @@ export const config = {
   },
 };
 
-// Helper untuk memastikan folder uploads ada
 const createUploadDir = (dir: string) => {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
 };
 
-const handlePostMethode = async (req: NextApiRequest, res: NextApiResponse) => {
-  const uploadPath = "/home/pasca/uploads/dosen";
+const handlePostMethod = async (req: NextApiRequest, res: NextApiResponse) => {
+  const uploadPath = path.join(process.cwd(), "public", "uploads", "staf");
   createUploadDir(uploadPath);
+
   const form = formidable({
     uploadDir: uploadPath,
     filename: (_, __, part) => {
-      return `${part.originalFilename}`;
+      const ext = path.extname(part.originalFilename || "");
+      const name = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+      return name;
     },
   });
 
@@ -41,74 +43,87 @@ const handlePostMethode = async (req: NextApiRequest, res: NextApiResponse) => {
       });
     });
 
-    if (!files.file)
-      return res.status(400).json({ error: "File tidak ditemukan" });
+    if (!files.file) {
+      return res.status(400).json({ success: false, error: "File tidak ditemukan" });
+    }
 
     const file = Array.isArray(files.file) ? files.file[0] : files.file;
-    const filePath = `/uploads/dosen/${file?.originalFilename}`;
-    const namatmp = fields.nama?.toString();
-    const nama = namatmp || "utitled";
-    const nik = fields.nik?.toString() || "description";
+    const filePath = `/uploads/staf/${path.basename(file.filepath)}`;
+    const nama = fields.nama?.toString();
+    const nik = fields.nik?.toString();
+
+    if (!nama) {
+      return res.status(400).json({ success: false, error: "Nama wajib diisi" });
+    }
 
     const saved = await prisma.staf.create({
       data: {
-        nama: nama,
-        nitk: nik,
+        nama,
+        nitk: nik || "",
         foto: filePath,
       },
     });
-    res.status(202).json(saved);
+
+    return res.status(201).json({ success: true, data: saved, message: "Staf berhasil dibuat" });
   } catch (error) {
     console.error("Error saving file:", error);
-    return res.status(500).json({ error: "Error saving file" });
+    return res.status(500).json({ success: false, error: "Error saving file" });
   }
 };
 
-const handleDeleteMethod = async (
-  req: NextApiRequest,
-  res: NextApiResponse
-) => {
+const handleDeleteMethod = async (req: NextApiRequest, res: NextApiResponse) => {
   const { id } = req.query;
 
-  const existing = await prisma.staf.findUnique({
-    where: { id: id as string },
-  });
-  if (existing?.foto) {
-    const oldPath = path.join(process.cwd(), "public", existing.foto);
-    if (fs.existsSync(oldPath)) {
-      fs.unlinkSync(oldPath);
-    }
+  if (!id) {
+    return res.status(400).json({ success: false, error: "ID wajib diisi" });
   }
+
   try {
+    const existing = await prisma.staf.findUnique({
+      where: { id: id as string },
+    });
+
+    if (!existing) {
+      return res.status(404).json({ success: false, error: "Staf tidak ditemukan" });
+    }
+
+    if (existing.foto) {
+      const oldPath = path.join(process.cwd(), "public", existing.foto);
+      if (fs.existsSync(oldPath)) {
+        fs.unlinkSync(oldPath);
+      }
+    }
+
     const result = await prisma.staf.delete({
       where: { id: id as string },
     });
-    res.status(200).json(result);
+
+    return res.status(200).json({ success: true, data: result, message: "Staf berhasil dihapus" });
   } catch (error) {
-    res.status(500).json({ error });
+    console.error("Error deleting content:", error);
+    return res.status(500).json({ success: false, error: "Error deleting content" });
   }
 };
 
 const handleGetMethod = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     const result = await prisma.staf.findMany();
-    console.log(result)
-    res.status(200).json(result);
+    return res.status(200).json({ success: true, data: result });
   } catch (error) {
     console.error("Error fetching content:", error);
-    res.status(500).json({ error: "Error fetching content" });
+    return res.status(500).json({ success: false, error: "Error fetching content" });
   }
 };
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "POST") {
-    return handlePostMethode(req, res);
+    return handlePostMethod(req, res);
   }
   if (req.method === "DELETE") {
     return handleDeleteMethod(req, res);
-  }if(req.method === "GET"){
-  return handleGetMethod(req, res);
-}else {
-    res.status(405).json({ message: "Method not allowed" });
   }
+  if (req.method === "GET") {
+    return handleGetMethod(req, res);
+  }
+  return res.status(405).json({ success: false, error: "Method not allowed" });
 }

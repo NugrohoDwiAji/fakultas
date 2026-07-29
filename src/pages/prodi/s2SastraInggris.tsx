@@ -35,7 +35,7 @@ export default function S2SastraInggris() {
   const handleGetProdi = async () => {
     try {
       const result = await axios.get("/api/prodi");
-      setProdi(result.data);
+      setProdi(result.data.data || []);
     } catch (error) {
       console.log(error, "eror");
     }

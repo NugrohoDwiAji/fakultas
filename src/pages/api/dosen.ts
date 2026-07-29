@@ -3,6 +3,7 @@ import prisma from "@/services/prisma";
 import formidable, { Fields, Files } from "formidable";
 import fs from "fs";
 import path from "path";
+import type { ApiResponse, DosenType } from "@/types";
 
 export const config = {
   api: {
@@ -10,20 +11,22 @@ export const config = {
   },
 };
 
-// Helper untuk memastikan folder uploads ada
 const createUploadDir = (dir: string) => {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
 };
 
-const handlePostMethode = async (req: NextApiRequest, res: NextApiResponse) => {
-  const uploadPath = "/home/pasca/uploads/dosen";
+const handlePostMethod = async (req: NextApiRequest, res: NextApiResponse<ApiResponse<DosenType>>) => {
+  const uploadPath = path.join(process.cwd(), "public", "uploads", "dosen");
   createUploadDir(uploadPath);
+
   const form = formidable({
     uploadDir: uploadPath,
     filename: (_, __, part) => {
-      return `${part.originalFilename}`;
+      const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+      const ext = path.extname(part.originalFilename || "");
+      return `${uniqueSuffix}${ext}`;
     },
   });
 
@@ -41,75 +44,92 @@ const handlePostMethode = async (req: NextApiRequest, res: NextApiResponse) => {
       });
     });
 
-    if (!files.file)
-      return res.status(400).json({ error: "File tidak ditemukan" });
+    if (!files.file) {
+      return res.status(400).json({ success: false, error: "File tidak ditemukan" });
+    }
+
+    const nama = fields.nama?.toString();
+    const nik = fields.nik?.toString();
+    const jenis_dosen = fields.jenis_dosen?.toString();
+
+    if (!nama || !nik || !jenis_dosen) {
+      return res.status(400).json({ success: false, error: "nama, nik, dan jenis_dosen wajib diisi" });
+    }
 
     const file = Array.isArray(files.file) ? files.file[0] : files.file;
-    const filePath = `/uploads/dosen/${file?.originalFilename}`;
-    const namatmp = fields.nama?.toString();
-    const nama = namatmp || "utitled";
-    const nik = fields.nik?.toString() || "description";
-    const jenis_dosen = fields.jenis_dosen?.toString() || "Dosen Ilkom";
+    const filePath = `/uploads/dosen/${file?.newFilename}`;
 
     const saved = await prisma.dosen.create({
       data: {
-        nama: nama,
-        nik: nik,
-        jenis_dosen: jenis_dosen,
+        nama,
+        nik,
+        jenis_dosen,
         foto: filePath,
       },
     });
-    res.status(202).json(saved);
+
+    return res.status(201).json({ success: true, data: saved, message: "Dosen berhasil ditambahkan" });
   } catch (error) {
-    console.error("Error saving file:", error);
-    return res.status(500).json({ error: "Error saving file" });
+    console.error("Error saving dosen:", error);
+    return res.status(500).json({ success: false, error: "Gagal menyimpan data dosen" });
   }
 };
 
-const handleDeleteMethod = async (
-  req: NextApiRequest,
-  res: NextApiResponse
-) => {
+const handleDeleteMethod = async (req: NextApiRequest, res: NextApiResponse<ApiResponse>) => {
   const { id } = req.query;
 
-  const existing = await prisma.dosen.findUnique({
-    where: { id: id as string },
-  });
-  if (existing?.foto) {
-    const oldPath = path.join(process.cwd(), "public", existing.foto);
-    if (fs.existsSync(oldPath)) {
-      fs.unlinkSync(oldPath);
-    }
+  if (!id) {
+    return res.status(400).json({ success: false, error: "id wajib diisi" });
   }
+
   try {
-    const result = await prisma.dosen.delete({
+    const existing = await prisma.dosen.findUnique({
       where: { id: id as string },
     });
-    res.status(200).json(result);
+
+    if (!existing) {
+      return res.status(404).json({ success: false, error: "Dosen tidak ditemukan" });
+    }
+
+    if (existing.foto) {
+      const oldPath = path.join(process.cwd(), "public", existing.foto);
+      if (fs.existsSync(oldPath)) {
+        fs.unlinkSync(oldPath);
+      }
+    }
+
+    await prisma.dosen.delete({
+      where: { id: id as string },
+    });
+
+    return res.status(200).json({ success: true, message: "Dosen berhasil dihapus" });
   } catch (error) {
-    res.status(500).json({ error });
+    console.error("Error deleting dosen:", error);
+    return res.status(500).json({ success: false, error: "Gagal menghapus data dosen" });
   }
 };
 
-const handleGetMethod = async (req: NextApiRequest, res: NextApiResponse) => {
+const handleGetMethod = async (_req: NextApiRequest, res: NextApiResponse<ApiResponse<DosenType[]>>) => {
   try {
-    const result = await prisma.dosen.findMany();
-    res.status(200).json(result);
+    const result = await prisma.dosen.findMany({
+      orderBy: { create_at: "desc" },
+    });
+    return res.status(200).json({ success: true, data: result });
   } catch (error) {
-    console.error("Error fetching content:", error);
-    res.status(500).json({ error: "Error fetching content" });
+    console.error("Error fetching dosen:", error);
+    return res.status(500).json({ success: false, error: "Gagal mengambil data dosen" });
   }
 };
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+export default function handler(req: NextApiRequest, res: NextApiResponse<ApiResponse>) {
+  if (req.method === "GET") {
+    return handleGetMethod(req, res);
+  }
   if (req.method === "POST") {
-    return handlePostMethode(req, res);
+    return handlePostMethod(req, res);
   }
   if (req.method === "DELETE") {
     return handleDeleteMethod(req, res);
-  }if(req.method === "GET"){
-  return handleGetMethod(req, res);
-}else {
-    res.status(405).json({ message: "Method not allowed" });
   }
+  return res.status(405).json({ success: false, error: "Method not allowed" });
 }

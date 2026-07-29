@@ -1,30 +1,33 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/services/prisma";
 
-async function handdlePostMethod(req: NextApiRequest, res: NextApiResponse) {
+const handlePostMethod = async (req: NextApiRequest, res: NextApiResponse) => {
   const { title, value } = req.body;
+
+  if (!title || !value) {
+    return res.status(400).json({ success: false, error: "Title and value are required" });
+  }
+
   try {
     const result = await prisma.content.create({
-      data: {
-        title: title,
-        value: value,
-      },
+      data: { title, value },
     });
-    res.status(202).json(result);
+    res.status(201).json({ success: true, data: result, message: "Content created" });
   } catch (error) {
-    console.log("eror", error);
-    res.status(500).json({ error: "Error creating content" });
+    console.error("Error creating content:", error);
+    res.status(500).json({ success: false, error: "Error creating content" });
   }
-}
-async function handleGetMethod(req: NextApiRequest, res: NextApiResponse) {
+};
+
+const handleGetMethod = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     const result = await prisma.content.findMany();
-    res.status(200).json(result);
+    res.status(200).json({ success: true, data: result });
   } catch (error) {
     console.error("Error fetching content:", error);
-    res.status(500).json({ error: "Error fetching content" });
+    res.status(500).json({ success: false, error: "Error fetching content" });
   }
-}
+};
 
 export default async function handler(
   req: NextApiRequest,
@@ -34,8 +37,7 @@ export default async function handler(
     return handleGetMethod(req, res);
   }
   if (req.method === "POST") {
-    return handdlePostMethod(req, res);
-  } else {
-    res.status(405).json({ message: "Method not allowed" });
+    return handlePostMethod(req, res);
   }
+  res.status(405).json({ success: false, error: "Method not allowed" });
 }

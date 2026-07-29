@@ -5,44 +5,40 @@ import FileDropzone from "@/components/admin/elements/FileDropZone";
 import axios from "axios";
 import Image from "next/image";
 import SuccessAlert from "@/components/cards/AlertSucces";
+import { StafType } from "@/types";
 
-type DataDosen = {
+type DataStaf = {
   nama: string;
   nik: string;
-};
-
-type Data = {
-  id: string;
-  nama: string;
-  nitk: string;
-  foto: string;
-  uploadat: string;
 };
 
 export default function Staf() {
   const [isInput, setIsInput] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [showAlert, setShowAlert] = useState(false);
-  const [dataDosen, setDataDosen] = useState<DataDosen>({
+  const [dataStaf, setDataStaf] = useState<DataStaf>({
     nama: "",
     nik: "",
   });
-  const [datas, setDatas] = useState<Data[]>([]);
+  const [datas, setDatas] = useState<StafType[]>([]);
 
   const handlePost = async () => {
     const data = {
-      nama: dataDosen.nama,
-      nik: dataDosen.nik,
+      nama: dataStaf.nama,
+      nik: dataStaf.nik,
       file: file,
     };
     try {
-      await axios.post("/api/staf", data, {
+      const result = await axios.post("/api/staf", data, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
+      setDatas([...datas, result.data.data]);
       setShowAlert(true);
-      setTimeout(() => document.location.reload(), 1500);
+      setIsInput(false);
+      setDataStaf({ nama: "", nik: "" });
+      setFile(null);
     } catch (error) {
       console.log(error);
     }
@@ -51,7 +47,7 @@ export default function Staf() {
   const handleDelete = async (id: string) => {
     try {
       await axios.delete(`/api/staf?id=${id}`);
-      document.location.reload();
+      setDatas(datas.filter((item) => item.id !== id));
     } catch (error) {
       console.log(error);
     }
@@ -60,7 +56,7 @@ export default function Staf() {
   const handleGet = async () => {
     try {
       const result = await axios.get("/api/staf");
-      setDatas(result.data);
+      setDatas(result.data.data || []);
     } catch (error) {
       console.log(error);
     }
@@ -104,7 +100,7 @@ export default function Staf() {
                 name=""
                 id=""
                 onChange={(e) =>
-                  setDataDosen({ ...dataDosen, nama: e.target.value })
+                  setDataStaf({ ...dataStaf, nama: e.target.value })
                 }
                 className="bg-white p-2 focus:outline-purple-600 rounded-lg outline-purple-100 outline-2 w-80"
               />
@@ -115,7 +111,7 @@ export default function Staf() {
               <input
                 type="text"
                 onChange={(e) =>
-                  setDataDosen({ ...dataDosen, nik: e.target.value })
+                  setDataStaf({ ...dataStaf, nik: e.target.value })
                 }
                 className="bg-white p-2 focus:outline-purple-600 rounded-lg outline-purple-100 outline-2"
               />

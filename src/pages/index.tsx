@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import CardBerita from "../components/cards/CardBerita";
 import ButtonPrimary from "@/components/elements/ButtonPrimary";
 import axios from "axios";
@@ -10,46 +10,32 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import Image from "next/image";
 import CardFaq from "@/components/cards/CardFaq";
-import Carausel from "@/components/Carausel";
+import Carousel from "@/components/Carousel";
+import { GetServerSideProps } from "next";
+import prisma from "@/services/prisma";
+import {
+  ContentType,
+  IdentitasType,
+  PengumumanType,
+  BeritaType,
+  FaqType,
+} from "@/types";
 
-type ContentType = {
-  id: string;
-  title: string;
-  value: string;
-};
+interface HomeProps {
+  dataContent: ContentType[];
+  identitas: IdentitasType[];
+  dataBerita: BeritaType[];
+  dataPengumuman: PengumumanType[];
+  dataFaq: FaqType[];
+}
 
-type IdentitasType = {
-  id: string;
-  name: string;
-  value: string;
-};
-
-type PengumumanType = {
-  id: string;
-  title: string;
-  file_path: string;
-  uploadat: string;
-};
-
-type DataBerita = {
-  id: string;
-  title: string;
-  description: string;
-  filepath: string;
-  uploudat: string;
-};
-type QuestionAnswer = {
-  id: string;
-  question: string;
-  answer: string;
-  created_at: string;
-};
-export default function Home() {
-  const [dataFaq, setDataFaq] = useState<QuestionAnswer[]>([]);
-  const [dataContent, setdataContent] = useState<ContentType[]>([]);
-  const [identitas, setIdentitas] = useState<IdentitasType[]>([]);
-  const [dataBerita, setDataBerita] = useState<DataBerita[]>([]);
-  const [dataPengumuman, setDataPengumuman] = useState<PengumumanType[]>([]);
+export default function Home({
+  dataContent,
+  identitas,
+  dataBerita,
+  dataPengumuman,
+  dataFaq,
+}: HomeProps) {
   const router = useRouter();
 
   const truncateText = (text: string, maxLength: number) => {
@@ -58,68 +44,17 @@ export default function Home() {
       : text;
   };
 
-  const handleGetIdentitas = async () => {
-    try {
-      const result = await axios.get("/api/identitas");
-      setIdentitas(result.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const handleGetContent = async () => {
-    try {
-      const result = await axios.get("/api/content");
-      setdataContent(result.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const handleGetPengumuman = async () => {
-    try {
-      const result = await axios.get("/api/pengumuman");
-      setDataPengumuman(result.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  const handleGetBerita = async () => {
-    try {
-      const result = await axios.get("/api/berita");
-      setDataBerita(result.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const handleGetFaq = async () => {
-    try {
-      const result = await axios.get("/api/faq");
-      setDataFaq(result.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   useEffect(() => {
-    handleGetFaq();
-    handleGetBerita();
-    handleGetIdentitas();
-    handleGetContent();
-    handleGetPengumuman();
+    AOS.init({
+      duration: 300,
+      once: true,
+      easing: "ease-in-out",
+    });
     axios.get("/api/track", { params: { url: "/" } }).catch((err) => {
       console.log("Tracking error:", err);
     });
   }, []);
 
-  useEffect(() => {
-    AOS.init({
-      duration: 300, // Durasi animasi dalam milidetik
-      once: true, // Animasi hanya berjalan sekali
-      easing: "ease-in-out", // Efek transisi animasi
-    });
-  }, []);
   return (
     <div className="">
       {/* Banner */}
@@ -140,13 +75,6 @@ export default function Home() {
               Daftar Sekarang
             </a>
           </div>
-          {/* <div className="lg:w-[40%] w-[50%] flex justify-center">
-            <img
-              src="/img/mahasiswa.png"
-              alt=""
-              className="h-[11rem] md:h-[24rem] lg:h-[28rem]"
-            />
-          </div> */}
         </div>
       </div>
 
@@ -242,7 +170,7 @@ export default function Home() {
         <hr className="border-t-[3px] border-purple-900 w-[20%] md:w-[15%] lg:w-[6%]  mb-5" />
         <div className="w-full ">
         <center>
-          <Carausel>
+          <Carousel>
             {dataBerita.slice(0, 6).map((item, index) => (
               <div key={index} className="my-4 w-full ">
                 <CardBerita
@@ -255,7 +183,7 @@ export default function Home() {
                 />
               </div>
             ))}
-          </Carausel>
+          </Carousel>
           </center>
           <div className="mt-10 w-full flex justify-center">
             <ButtonPrimary
@@ -279,7 +207,7 @@ export default function Home() {
             <div className="w-screen mt-16">
               <center>
 
-              <Carausel>
+              <Carousel>
                 {dataPengumuman.map((item, index) => (
                   <CardPengumuman
                   key={index}
@@ -288,7 +216,7 @@ export default function Home() {
                   uploadat={item.uploadat}
                   />
                 ))}
-              </Carausel>
+              </Carousel>
                 </center>
                <div className="mt-10 w-full flex justify-center">
             <ButtonPrimary
@@ -356,3 +284,43 @@ export default function Home() {
     </div>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  try {
+    const [dataContent, identitas, dataBerita, dataPengumuman, dataFaq] =
+      await Promise.all([
+        prisma.content.findMany(),
+        prisma.identitas.findMany(),
+        prisma.berita.findMany({
+          orderBy: { uploudat: "desc" },
+        }),
+        prisma.pengumuman.findMany({
+          orderBy: { uploadat: "desc" },
+        }),
+        prisma.faq.findMany({
+          orderBy: { created_at: "desc" },
+        }),
+      ]);
+
+    return {
+      props: {
+        dataContent: JSON.parse(JSON.stringify(dataContent)),
+        identitas: JSON.parse(JSON.stringify(identitas)),
+        dataBerita: JSON.parse(JSON.stringify(dataBerita)),
+        dataPengumuman: JSON.parse(JSON.stringify(dataPengumuman)),
+        dataFaq: JSON.parse(JSON.stringify(dataFaq)),
+      },
+    };
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    return {
+      props: {
+        dataContent: [],
+        identitas: [],
+        dataBerita: [],
+        dataPengumuman: [],
+        dataFaq: [],
+      },
+    };
+  }
+};

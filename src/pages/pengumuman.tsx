@@ -1,31 +1,15 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React from "react";
 import CardPengumuman from "@/components/cards/CardPengumuman";
 import Image from "next/image";
+import { GetServerSideProps } from "next";
+import prisma from "@/services/prisma";
+import { PengumumanType } from "@/types";
 
-type PengumumanType = {
-  id: string;
-  title: string;
-  file_path: string;
-  uploadat: string;
-};
+interface PengumumanProps {
+  dataPengumuman: PengumumanType[];
+}
 
-export default function Pengumuman() {
-  const [dataPengumuman, setDataPengumuman] = useState<PengumumanType[]>([]);
-
-  const handleGetPengumuman = async () => {
-    try {
-      const result = await axios.get("/api/pengumuman");
-      setDataPengumuman(result.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    handleGetPengumuman();
-  }, []);
-
+export default function Pengumuman({ dataPengumuman }: PengumumanProps) {
   return (
     <div className="min-h-screen">
       <div className="relative h-80 md:h-96 lg:h-[28rem]">
@@ -62,3 +46,24 @@ export default function Pengumuman() {
     </div>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  try {
+    const dataPengumuman = await prisma.pengumuman.findMany({
+      orderBy: { uploadat: "desc" },
+    });
+
+    return {
+      props: {
+        dataPengumuman: JSON.parse(JSON.stringify(dataPengumuman)),
+      },
+    };
+  } catch (error) {
+    console.error("Error fetching pengumuman:", error);
+    return {
+      props: {
+        dataPengumuman: [],
+      },
+    };
+  }
+};

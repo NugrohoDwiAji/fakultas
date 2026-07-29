@@ -5,20 +5,12 @@ import FileDropzone from "@/components/admin/elements/FileDropZone";
 import axios from "axios";
 import Image from "next/image";
 import SuccessAlert from "@/components/cards/AlertSucces";
+import { DosenType } from "@/types";
 
 type DataDosen = {
   nama: string;
   nik: string;
   jenis_dosen: string;
-};
-
-type Data = {
-  id: string;
-  nama: string;
-  nik: string;
-  jenis_dosen: string;
-  foto: string;
-  uploadat: string;
 };
 
 export default function Dosen() {
@@ -30,7 +22,7 @@ export default function Dosen() {
     nik: "",
     jenis_dosen: "",
   });
-  const [datas, setDatas] = useState<Data[]>([]);
+  const [datas, setDatas] = useState<DosenType[]>([]);
 
   const handlePost = async () => {
     const data = {
@@ -40,13 +32,16 @@ export default function Dosen() {
       file: file,
     };
     try {
-      await axios.post("/api/dosen", data, {
+      const result = await axios.post("/api/dosen", data, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
+      setDatas([...datas, result.data.data]);
       setShowAlert(true);
-      setTimeout(() => document.location.reload(), 1500);
+      setIsInput(false);
+      setDataDosen({ nama: "", nik: "", jenis_dosen: "" });
+      setFile(null);
     } catch (error) {
       console.log(error);
     }
@@ -55,7 +50,7 @@ export default function Dosen() {
   const handleDelete = async (id: string) => {
     try {
       await axios.delete(`/api/dosen?id=${id}`);
-      document.location.reload();
+      setDatas(datas.filter((item) => item.id !== id));
     } catch (error) {
       console.log(error);
     }
@@ -64,7 +59,7 @@ export default function Dosen() {
   const handleGet = async () => {
     try {
       const result = await axios.get("/api/dosen");
-      setDatas(result.data);
+      setDatas(result.data.data || []);
     } catch (error) {
       console.log(error);
     }

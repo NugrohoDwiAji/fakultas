@@ -4,16 +4,11 @@ import ButtonPrimary from "@/components/elements/ButtonPrimary";
 import ModalEdit from "@/components/admin/ModalEdit";
 import axios from "axios";
 import SuccessAlert from "@/components/cards/AlertSucces";
-
-type ContentType = {
-  id: string;
-  title: string;
-  value: string;
-};
+import { ContentType } from "@/types";
 
 export default function Content() {
   const [isEdit, setisEdit] = useState(false);
-  const [data, setData] = useState<ContentType[] | null>([]);
+  const [data, setData] = useState<ContentType[]>([]);
   const [detailData, setdetailData] = useState<ContentType | null>(null)
   const [showAlert, setShowAlert] = useState(false);
 
@@ -21,11 +16,17 @@ const handleEdit = async (id: string) =>{
   setisEdit(true);
   try {
     const result = await axios.get(`/api/contentDetails?id=${id}`);
-    setdetailData(result.data);
+    setdetailData(result.data.data);
    
   } catch (error) {
     console.log(error);
   }
+}
+
+const handleSave = (updatedItem: ContentType) => {
+  setData(data.map((item) => (item.id === updatedItem.id ? updatedItem : item)));
+  setisEdit(false);
+  setShowAlert(true);
 }
 
 
@@ -34,8 +35,8 @@ const handleEdit = async (id: string) =>{
   const handleGetItem = async () => {
     try {
       const result = await axios.get("/api/content");
-      setData(result.data);
-      console.log(result.data);
+      setData(result.data.data || []);
+      console.log(result.data.data);
     } catch (error) {
       console.log(error);
     }
@@ -94,7 +95,7 @@ const handleEdit = async (id: string) =>{
           <ModalEdit
           id={detailData?.id || ""}
             onClose={() => setisEdit(!isEdit)}
-            onSave={() => setisEdit(!isEdit)}
+            onSave={handleSave}
             title={detailData?.title || ""}  
             defaultValue={detailData?.value || ""}
           />

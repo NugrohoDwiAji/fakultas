@@ -10,22 +10,22 @@ export const config = {
   },
 };
 
-// Helper untuk memastikan folder uploads ada
 const createUploadDir = (dir: string) => {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
 };
 
-
-
 const handlePutMethod = async (req: NextApiRequest, res: NextApiResponse) => {
-  createUploadDir(path.join(process.cwd(), "/public/pengumuman"));
+  const uploadPath = path.join(process.cwd(), "public", "uploads", "pengumuman");
+  createUploadDir(uploadPath);
 
   const form = formidable({
-    uploadDir: path.join(process.cwd(), "public", "pengumuman"),
+    uploadDir: uploadPath,
     filename: (_, __, part) => {
-      return `${part.originalFilename}`;
+      const ext = path.extname(part.originalFilename || "");
+      const name = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+      return name;
     },
   });
 
@@ -43,22 +43,32 @@ const handlePutMethod = async (req: NextApiRequest, res: NextApiResponse) => {
       });
     });
 
-    if (!files.file)
-      return res.status(400).json({ error: "File tidak ditemukan" });
+    if (!files.file) {
+      return res.status(400).json({ success: false, error: "File tidak ditemukan" });
+    }
 
     const file = Array.isArray(files.file) ? files.file[0] : files.file;
-    const filePath = `/pengumuman/${file?.originalFilename}`;
-    const titletmp = fields.title?.toString();
-    const title = titletmp || "utitled";
-    const {id} = req.query;
+    const filePath = `/uploads/pengumuman/${path.basename(file.filepath)}`;
+    const title = fields.title?.toString();
+    const { id } = req.query;
 
-   // ✅ Ambil data lama dari database
+    if (!id) {
+      return res.status(400).json({ success: false, error: "ID wajib diisi" });
+    }
+
+    if (!title) {
+      return res.status(400).json({ success: false, error: "Title wajib diisi" });
+    }
+
     const existing = await prisma.pengumuman.findUnique({
       where: { id: id as string },
     });
 
-    // ✅ Hapus file lama jika ada
-    if (existing?.file_path) {
+    if (!existing) {
+      return res.status(404).json({ success: false, error: "Pengumuman tidak ditemukan" });
+    }
+
+    if (existing.file_path) {
       const oldPath = path.join(process.cwd(), "public", existing.file_path);
       if (fs.existsSync(oldPath)) {
         fs.unlinkSync(oldPath);
@@ -66,44 +76,49 @@ const handlePutMethod = async (req: NextApiRequest, res: NextApiResponse) => {
     }
 
     const saved = await prisma.pengumuman.update({
-        where:{id : id as string},
+      where: { id: id as string },
       data: {
-        title: title,
+        title,
         file_path: filePath,
       },
     });
-    res.status(202).json({Message:"Update Succes",saved});
+
+    return res.status(200).json({ success: true, data: saved, message: "Pengumuman berhasil diupdate" });
   } catch (error) {
     console.error("Error saving file:", error);
-    return res.status(500).json({ error: "Error saving file" });
+    return res.status(500).json({ success: false, error: "Error saving file" });
   }
 };
 
-
-
-
-
 const handleGetById = async (req: NextApiRequest, res: NextApiResponse) => {
   const { id } = req.query;
+
+  if (!id) {
+    return res.status(400).json({ success: false, error: "ID wajib diisi" });
+  }
+
   try {
     const result = await prisma.pengumuman.findUnique({
       where: { id: id as string },
     });
-    res.status(200).json(result);
-  } catch {
-    res.status(500).json({ error: "Error fetching content" });
+
+    if (!result) {
+      return res.status(404).json({ success: false, error: "Pengumuman tidak ditemukan" });
+    }
+
+    return res.status(200).json({ success: true, data: result });
+  } catch (error) {
+    console.error("Error fetching content:", error);
+    return res.status(500).json({ success: false, error: "Error fetching content" });
   }
 };
 
-
-export default function handler(req:NextApiRequest, res:NextApiResponse) {
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "GET") {
     return handleGetById(req, res);
   }
-  if(req.method === "PUT"){
-    handlePutMethod(req, res);
+  if (req.method === "PUT") {
+    return handlePutMethod(req, res);
   }
- else {
-    res.status(405).json({ message: "Method not allowed" });
-  }
+  return res.status(405).json({ success: false, error: "Method not allowed" });
 }

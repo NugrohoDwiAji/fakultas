@@ -3,30 +3,23 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import ButtonPrimary from "@/components/elements/ButtonPrimary";
 import SuccessAlert from "@/components/cards/AlertSucces";
-
-interface Prodi {
-  id: string;
-  nama: string;
-  link: string;
-  visi: string;
-  misi: string;
-}
+import { ProdiType } from "@/types";
 
 export default function Prodi() {
-  const [prodi, setProdi] = useState<Prodi[]>([]);
+  const [prodi, setProdi] = useState<ProdiType[]>([]);
   const [showAlert, setShowAlert] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
 
   const handleGetProdi = async () => {
     try {
       const result = await axios.get("/api/prodi");
-      setProdi(result.data);
+      setProdi(result.data.data || []);
     } catch (error) {
       console.log(error, "eror");
     }
   };
 
-  const handleUpdate = async ({ id, nama, link, visi, misi }: Prodi) => {
+  const handleUpdate = async ({ id, nama, link, visi, misi }: ProdiType) => {
     const data = {
       nama: nama,
       link: link,
@@ -34,9 +27,10 @@ export default function Prodi() {
       misi: misi,
     };
     try {
-      await axios.put(`/api/prodi?id=${id}`, data);
+      const result = await axios.put(`/api/prodi?id=${id}`, data);
+      setProdi(prodi.map((item) => (item.id === id ? result.data.data : item)));
       setShowAlert(true);
-      document.location.reload();
+      setIsEdit(false);
     } catch (error) {
       console.log("eror", error);
     }
