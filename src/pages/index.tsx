@@ -70,7 +70,7 @@ export default function Home({
             </p>
             <a
               className="mt-2 md:mt-5 border-2 border-white text-white px-4 py-2 md:px-6  rounded-lg hover:scale-105 hover:shadow-2xl shadow-lg ease-in-out duration-300 transition-all text-sm md:text-xl w-fit hover:cursor-pointer "
-              href="https://pmb.universitasbumigora.ac.id/v.2019/daftar"
+              href="https://pmbv2.ubg.ac.id/daftar"
             >
               Daftar Sekarang
             </a>
